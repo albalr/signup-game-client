@@ -10,8 +10,11 @@ module rest_client {
     requires com.fasterxml.jackson.annotation;
     requires javafx.controls;
 
+    exports dk.dtu.compute.course02324.part4.consuming_rest;
+
     exports dk.dtu.compute.course02324.part4.consuming_rest.model;
     exports dk.dtu.compute.course02324.part4.consuming_rest.wrappers;
+
 
 
     /*

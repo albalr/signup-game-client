@@ -4,8 +4,13 @@ import dk.dtu.compute.course02324.part4.consuming_rest.model.Game;
 import dk.dtu.compute.course02324.part4.consuming_rest.model.Player;
 import dk.dtu.compute.course02324.part4.consuming_rest.wrappers.HALWrapperGames;
 import javafx.application.Application;
+import javafx.geometry.Insets;
 import javafx.scene.Scene;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.ListView;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestClient;
@@ -20,6 +25,7 @@ public class GameSignUpClient extends Application {
     public static void main(String[] args) {
 
         launch(args);
+
         /* Before you start this make sure you have created a player (with uid=1) and
          * a game (with uid=1) in the database; you can do that via the command
          * line tool curl, the tool Postman or  the HAL explorer (which, after
@@ -45,7 +51,7 @@ public class GameSignUpClient extends Application {
          *
          */
 
-        RestClient customClient = RestClient.builder().
+        /*RestClient customClient = RestClient.builder().
                 // requestFactory(new HttpComponentsClientHttpRequestFactory()).
                 baseUrl("http://localhost:8080").
                 build();
@@ -100,7 +106,7 @@ public class GameSignUpClient extends Application {
         game1 = customClient.get().uri("/player/1/game").retrieve().body(Game.class);
 
         System.out.println("Game attached to Player with uid 1 is: " + game1);
-
+        */
 
         // TODO try to read out the available games from the backend, show them on a
         //      simple graphical GUI and sign up for a game using some of the operations
@@ -112,8 +118,25 @@ public class GameSignUpClient extends Application {
 
     @Override
     public void start(Stage primaryStage) throws Exception {
+
+
+        Label title = new Label("RoboRally Games");
+        ListView<String> gameList = new ListView<>();
+        Button addGameBtn = new Button("Add New Game");
+        Button signUpBtn = new Button("Sign Up as Player");
+
+
+        VBox vbox1 = new VBox(addGameBtn, gameList);
+        VBox vbox2 = new VBox(signUpBtn);
+        HBox root = new HBox(vbox1, vbox2);
+
+
+        root.setPadding(new Insets(10));
+
+        //vbox1.getChildren().addAll(title, gameList, addGameBtn, signUpBtn);
+
         primaryStage.setTitle("RoboRally Game Sign-Up");
-        primaryStage.setScene(new Scene(new Label("Hello, RoboRally!"), 400, 200));
+        primaryStage.setScene(new Scene(root, 400, 300));
         primaryStage.show();
     }
 }
