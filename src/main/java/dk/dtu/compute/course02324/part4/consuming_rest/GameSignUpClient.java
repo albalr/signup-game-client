@@ -1,21 +1,25 @@
 package dk.dtu.compute.course02324.part4.consuming_rest;
 
-import dk.dtu.compute.course02324.part4.consuming_rest.wrappers.HALWrapperGames;
 import dk.dtu.compute.course02324.part4.consuming_rest.model.Game;
 import dk.dtu.compute.course02324.part4.consuming_rest.model.Player;
-
+import dk.dtu.compute.course02324.part4.consuming_rest.wrappers.HALWrapperGames;
+import javafx.application.Application;
+import javafx.scene.Scene;
+import javafx.scene.control.Label;
+import javafx.stage.Stage;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestClient;
 
 import java.util.List;
 
 
-public class GameSignUpClient {
+public class GameSignUpClient extends Application {
 
     // see https://docs.spring.io/spring-framework/reference/integration/rest-clients.html#rest-resttemplate
 
     public static void main(String[] args) {
 
+        launch(args);
         /* Before you start this make sure you have created a player (with uid=1) and
          * a game (with uid=1) in the database; you can do that via the command
          * line tool curl, the tool Postman or  the HAL explorer (which, after
@@ -104,5 +108,12 @@ public class GameSignUpClient {
         //      For the GUI to work in JavaFX, you need to add some maven dependencies
         //      (see pom file for Assignment 3).
 
+    }
+
+    @Override
+    public void start(Stage primaryStage) throws Exception {
+        primaryStage.setTitle("RoboRally Game Sign-Up");
+        primaryStage.setScene(new Scene(new Label("Hello, RoboRally!"), 400, 200));
+        primaryStage.show();
     }
 }
