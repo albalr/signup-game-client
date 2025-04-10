@@ -221,7 +221,6 @@ public class GameSignUpClient extends Application {
             gameBox.setSpacing(10);
             gameBox.setPadding(new Insets(5));
 
-            Label gameLabel = new Label(game.getName());
             GridPane gameInfo = new GridPane();
             gameInfo.setHgap(10);
             gameInfo.setVgap(10);
