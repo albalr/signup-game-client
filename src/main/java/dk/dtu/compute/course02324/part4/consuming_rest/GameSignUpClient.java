@@ -6,11 +6,9 @@ import dk.dtu.compute.course02324.part4.consuming_rest.wrappers.HALWrapperGames;
 import javafx.application.Application;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.ListView;
-import javafx.scene.control.ScrollPane;
+import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import javafx.scene.layout.GridPane;
@@ -160,7 +158,63 @@ public class GameSignUpClient extends Application {
         root.setPadding(new Insets(10));
 
         Label title = new Label("RoboRally Games");
-        root.getChildren().add(title);
+
+        // Create Game Button
+        Button createGameButton = new Button("Create Game");
+        createGameButton.setOnAction(event -> {
+            System.out.println("Create Game button clicked");
+            // Add functionality to create a new game
+
+            Stage createGameStage = new Stage();
+            createGameStage.setTitle("Create New Game");
+
+            GridPane createGameLayout = new GridPane();
+            createGameLayout.setHgap(10); // Space between label and text field
+            createGameLayout.setVgap(15); // Space between rows
+            createGameLayout.setPadding(new Insets(10));
+            createGameLayout.setPrefWidth(300);
+
+            Label nameLabel = new Label("Game Name:");
+            TextField nameField = new TextField();
+
+            Label minPlayersLabel = new Label("Min Players:");
+            TextField minPlayersField = new TextField();
+
+            Label maxPlayersLabel = new Label("Max Players:");
+            TextField maxPlayersField = new TextField();
+
+            Button submitGameButton = new Button("Submit Game");
+            submitGameButton.setOnAction(e -> {
+                String gameName = nameField.getText();
+                // catch errors here fx if gameName is empty or null
+                int minPlayers = Integer.parseInt(minPlayersField.getText());
+                // catch errors here fx if minPlayers is empty, null or not a number
+                int maxPlayers = Integer.parseInt(maxPlayersField.getText());
+                // catch errors here fx if maxPlayers is empty, null or not a number
+
+                System.out.println("Game Created: " + gameName + ", Min Players: " + minPlayers + ", Max Players: " + maxPlayers);
+
+                // TODO: Implement the game creation logic here
+
+                createGameStage.close();
+            });
+
+            createGameLayout.add(nameLabel, 0, 0);
+            createGameLayout.add(nameField, 1, 0);
+            createGameLayout.add(minPlayersLabel, 0, 1);
+            createGameLayout.add(minPlayersField, 1, 1);
+            createGameLayout.add(maxPlayersLabel, 0, 2);
+            createGameLayout.add(maxPlayersField, 1, 2);
+            createGameLayout.add(submitGameButton, 1, 3);
+            //createGameLayout.getChildren().addAll(nameLabel, nameField, minPlayersLabel, minPlayersField, maxPlayersLabel, maxPlayersField, submitGameButton);
+
+            Scene createGameScene = new Scene(createGameLayout);
+            createGameStage.setScene(createGameScene);
+            createGameStage.sizeToScene();
+            createGameStage.show();
+        });
+
+        root.getChildren().addAll(title, createGameButton);
 
         for (Game game : games) {
             HBox gameBox = new HBox();
@@ -190,17 +244,89 @@ public class GameSignUpClient extends Application {
             Button signUpButton = new Button("Sign Up");
 
             signUpButton.setOnAction(event -> {
-                System.out.println("Signing up for game: " + game.getName());
+                System.out.println("Sign Up button clicked for game: " + game.getName());
+
+                Stage signUpStage = new Stage();
+                signUpStage.setTitle("Sign Up for Game");
+
+                GridPane signUpLayout = new GridPane();
+                signUpLayout.setHgap(10);
+                signUpLayout.setVgap(15);
+                signUpLayout.setPadding(new Insets(10));
+
+                GridPane labelContainer = new GridPane();
+                labelContainer.setHgap(10);
+                labelContainer.setVgap(15);
+                labelContainer.setPadding(new Insets(10));
+                labelContainer.setStyle("-fx-border-color: black; -fx-border-width: 1; -fx-border-style: solid; -fx-background-color: white;");
+
+                Label gameNameLabel = new Label("Game: " + game.getName());
+                Label minPlayersLabel = new Label("Min players: " + game.getMinPlayers());
+                Label maxPlayersLabel = new Label("Max players: " + game.getMaxPlayers());
+                // Not implemented yet
+                // Label currentPlayers = new Label("Current players: " + game.getCurrentPlayers());
+
+                labelContainer.add(gameNameLabel, 0, 0);
+                labelContainer.add(minPlayersLabel, 0, 1);
+                labelContainer.add(maxPlayersLabel, 0, 2);
+                // labelContainer.add(currentPlayers, 0, 3);
+
+                Label userNameLabel = new Label("User:");
+                TextField userNameField = new TextField();
+                userNameField.setPromptText("Enter your user");
+                userNameField.setPrefWidth(100);
+
+                Label playerNameLabel = new Label("Player:");
+                TextField playerNameField = new TextField();
+                playerNameField.setPromptText("Enter your player");
+                playerNameField.setPrefWidth(100);
+
+                Button submitSignupButton = new Button("Sign up!");
+                submitSignupButton.setOnAction(e -> {
+                    String userName = userNameField.getText();
+                    // catch errors here fx if userName is empty or null
+                    String playerName = playerNameField.getText();
+                    // catch errors here fx if playerName is empty, null or not a number
+
+                    System.out.println("Signing up for game: " + game.getName() + ", User: " + userName + ", Player: " + playerName);
+
+                    // TODO: Implement the sign-up logic here
+
+                    signUpStage.close();
+                });
+
+                signUpLayout.add(labelContainer, 0, 0, 2, 1); // Spanning 2 columns for the label container
+                signUpLayout.add(userNameLabel, 0, 1);
+                signUpLayout.add(userNameField, 1, 1);
+                signUpLayout.add(playerNameLabel, 0, 2);
+                signUpLayout.add(playerNameField, 1, 2);
+                signUpLayout.add(submitSignupButton, 1, 3);
+
+                Scene signUpScene = new Scene(signUpLayout);
+                signUpStage.setScene(signUpScene);
+                signUpStage.sizeToScene();
+                signUpStage.show();
+
             });
 
-            gameInfo.add(signUpButton, 0, 3, 2, 1);
+            //gameInfo.add(signUpButton, 0, 3, 2, 1);
 
-            ScrollPane gameScrollPane = new ScrollPane();
-            gameScrollPane.setContent(gameInfo);
-            gameScrollPane.setFitToWidth(true);
-            gameScrollPane.setFitToHeight(true);
+//            ScrollPane gameScrollPane = new ScrollPane();
+//            gameScrollPane.setContent(gameInfo);
+//            gameScrollPane.setPrefWidth(200);
+//            gameScrollPane.setFitToHeight(true);
+            VBox buttonBox = new VBox();
+            buttonBox.setPadding(new Insets(30, 0, 0, 0));
+            buttonBox.getChildren().add(signUpButton);
 
-            gameBox.getChildren().addAll(gameScrollPane);
+            HBox gamePane = new HBox();
+            gamePane.setPrefWidth(250);
+            gamePane.getChildren().addAll(gameInfo, buttonBox);
+
+            gameBox.getChildren().add(gamePane);
+            gameBox.setStyle("-fx-border-color: black; -fx-border-width: 1; -fx-border-style: solid; -fx-background-color: white;");
+
+            //gameBox.getChildren().addAll(gameScrollPane);
             root.getChildren().add(gameBox);
         }
 
