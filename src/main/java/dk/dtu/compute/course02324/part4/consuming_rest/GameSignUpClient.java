@@ -2,6 +2,9 @@ package dk.dtu.compute.course02324.part4.consuming_rest;
 
 import dk.dtu.compute.course02324.part4.consuming_rest.model.Game;
 import dk.dtu.compute.course02324.part4.consuming_rest.model.Player;
+import dk.dtu.compute.course02324.part4.consuming_rest.model.User;
+import dk.dtu.compute.course02324.part4.consuming_rest.wrappers.HALWrapperPlayers;
+import dk.dtu.compute.course02324.part4.consuming_rest.wrappers.HALWrapperUsers;
 import dk.dtu.compute.course02324.part4.consuming_rest.wrappers.HALWrapperGames;
 import javafx.application.Application;
 import javafx.geometry.Insets;
@@ -185,12 +188,70 @@ public class GameSignUpClient extends Application {
 
             Button submitGameButton = new Button("Submit Game");
             submitGameButton.setOnAction(e -> {
-                String gameName = nameField.getText();
-                // catch errors here fx if gameName is empty or null
-                int minPlayers = Integer.parseInt(minPlayersField.getText());
-                // catch errors here fx if minPlayers is empty, null or not a number
-                int maxPlayers = Integer.parseInt(maxPlayersField.getText());
-                // catch errors here fx if maxPlayers is empty, null or not a number
+                String gameName;
+                try {
+                    gameName = nameField.getText();
+                    if (nameField.getText() == null || nameField.getText().isEmpty()) {
+                        // Show error message
+                        System.out.println("Game name cannot be empty or null");
+                        return;
+                    }
+                } catch (Exception ex) {
+                    // Handle unexpected errors
+                    System.out.println("An unexpected error occurred: " + ex.getMessage());
+                    return;
+                }
+
+                int minPlayers;
+                try {
+                    minPlayers = Integer.parseInt(minPlayersField.getText());
+                    if (minPlayersField.getText() == null || minPlayersField.getText().isEmpty()) {
+                        // Show error message
+                        System.out.println("Min players cannot be empty or null");
+                        return;
+                    }
+                    if (minPlayers <= 0) {
+                        // Show error message
+                        System.out.println("Min players must be greater than 0");
+                        return;
+                    }
+                } catch (NumberFormatException ex) {
+                    // Show error message
+                    System.out.println("Min players must be a number");
+                    return;
+                } catch (Exception ex) {
+                    // Handle unexpected errors
+                    System.out.println("An unexpected error occurred: " + ex.getMessage());
+                    return;
+                }
+
+                int maxPlayers;
+                try {
+                    maxPlayers = Integer.parseInt(maxPlayersField.getText());
+                    if (maxPlayersField.getText() == null || maxPlayersField.getText().isEmpty()) {
+                        // Show error message
+                        System.out.println("Max players cannot be empty or null");
+                        return;
+                    }
+                    if (maxPlayers <= 0) {
+                        // Show error message
+                        System.out.println("Max players must be greater than 0");
+                        return;
+                    }
+                    if (maxPlayers < minPlayers) {
+                        // Show error message
+                        System.out.println("Max players must be greater than Min players");
+                        return;
+                    }
+                } catch (NumberFormatException ex) {
+                    // Show error message
+                    System.out.println("Max players must be a number");
+                    return;
+                } catch (Exception ex) {
+                    // Handle unexpected errors
+                    System.out.println("An unexpected error occurred: " + ex.getMessage());
+                    return;
+                }
 
                 System.out.println("Game Created: " + gameName + ", Min Players: " + minPlayers + ", Max Players: " + maxPlayers);
 
@@ -282,14 +343,31 @@ public class GameSignUpClient extends Application {
 
                 Button submitSignupButton = new Button("Sign up!");
                 submitSignupButton.setOnAction(e -> {
-                    String userName = userNameField.getText();
-                    // catch errors here fx if userName is empty or null
-                    String playerName = playerNameField.getText();
-                    // catch errors here fx if playerName is empty, null or not a number
+                    String userName;
+                    try {
+                        userName = userNameField.getText();
+                        if (userName == null || userName.isEmpty()) {
+                            System.out.println("User name cannot be empty or null");
+                            return;
+                        }
+                    } catch (Exception ex) {
+                        System.out.println("An unexpected error occurred: " + ex.getMessage());
+                        return;
+                    }
+
+                    String playerName;
+                    try {
+                        playerName = playerNameField.getText();
+                        if (playerName == null || playerName.isEmpty()) {
+                            System.out.println("Player name cannot be empty or null");
+                            return;
+                        }
+                    } catch (Exception ex) {
+                        System.out.println("An unexpected error occurred: " + ex.getMessage());
+                        return;
+                    }
 
                     System.out.println("Signing up for game: " + game.getName() + ", User: " + userName + ", Player: " + playerName);
-
-                    // TODO: Implement the sign-up logic here
 
                     signUpStage.close();
                 });
