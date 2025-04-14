@@ -2,20 +2,24 @@ package dk.dtu.compute.course02324.part4.consuming_rest;
 
 import dk.dtu.compute.course02324.part4.consuming_rest.model.Game;
 import dk.dtu.compute.course02324.part4.consuming_rest.model.Player;
+import dk.dtu.compute.course02324.part4.consuming_rest.model.User;
 import dk.dtu.compute.course02324.part4.consuming_rest.wrappers.HALWrapperGames;
+import dk.dtu.compute.course02324.part4.consuming_rest.wrappers.HALWrapperUsers;
 import javafx.application.Application;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
-import javafx.scene.control.*;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.control.TextField;
+import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
-import javafx.scene.layout.GridPane;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestClient;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class GameSignUpClient extends Application {
 
@@ -26,127 +30,23 @@ public class GameSignUpClient extends Application {
 
         launch(args);
 
-        /*
-         * Before you start this make sure you have created a player (with uid=1) and
-         * a game (with uid=1) in the database; you can do that via the command
-         * line tool curl, the tool Postman or the HAL explorer (which, after
-         * your have started your backend is available at http://localhost:8080/api).
-         *
-         * You can create a player by posting
-         *
-         * {
-         * "maxPlayers": 2,
-         * "minPlayers": 6,
-         * "name": "First Game"
-         * }
-         *
-         * to http://localhost:8080/game
-         *
-         * and by posting
-         *
-         * {
-         * "name": "Player 1"
-         * }
-         *
-         * to ttp://localhost:8080/game
-         *
-         */
-
-        /*
-         * RestClient customClient = RestClient.builder().
-         * // requestFactory(new HttpComponentsClientHttpRequestFactory()).
-         * baseUrl("http://localhost:8080").
-         * build();
-         * 
-         * // String result =
-         * customClient.get().uri("/game").retrieve().body(String.class);
-         * String result = customClient.get().uri("/").retrieve().body(String.class);
-         * 
-         * System.out.println(result);
-         * 
-         * System.out.println(
-         * "---------------------------------------------------------");
-         * 
-         * result = customClient.get().uri("/game").retrieve().body(String.class);
-         * 
-         * System.out.println(result);
-         * 
-         * System.out.println(
-         * "---------------------------------------------------------");
-         * 
-         * 
-         * Game game1 = customClient.get().uri("/game/1").retrieve().body(Game.class);
-         * 
-         * System.out.println("Game with uid 1 is: " + game1);
-         * 
-         * System.out.println(
-         * "---------------------------------------------------------");
-         * 
-         * List<Game> games =
-         * customClient.get().uri("/game").retrieve().body(HALWrapperGames.class).
-         * getGames();
-         * 
-         * for (Game game: games) {
-         * System.out.println(game);
-         * }
-         * 
-         * System.out.println(
-         * "---------------------------------------------------------");
-         * 
-         * Player player1 =
-         * customClient.get().uri("/player/1").retrieve().body(Player.class);
-         * 
-         * System.out.println("Player with uid 1 is: " + player1);
-         * 
-         * 
-         * System.out.println(
-         * "---------------------------------------------------------");
-         * 
-         * // the following put request will connect game1 with player1:
-         * 
-         * String body = "http://localhost:8080/game/1";
-         * 
-         * ResponseEntity<Player> playerResponseEntity =
-         * customClient.put().uri("/player/1/game").
-         * header("Content-Type", "text/uri-list").
-         * body(body).retrieve().toEntity(Player.class);
-         * System.out.println("player: " + playerResponseEntity.toString());
-         * 
-         * 
-         * System.out.println(
-         * "---------------------------------------------------------");
-         * 
-         * game1 = customClient.get().uri("/player/1/game").retrieve().body(Game.class);
-         * 
-         * System.out.println("Game attached to Player with uid 1 is: " + game1);
-         */
-
         // TODO try to read out the available games from the backend, show them on a
-        // simple graphical GUI and sign up for a game using some of the operations
-        // at the top.
-        // For the GUI to work in JavaFX, you need to add some maven dependencies
-        // (see pom file for Assignment 3).
+        //  simple graphical GUI and sign up for a game using some of the operations
+        //  at the top. -- done
+        //  For the GUI to work in JavaFX, you need to add some maven dependencies
+        //  (see pom file for Assignment 3). -- done
 
     }
 
     @Override
     public void start(Stage primaryStage) throws Exception {
 
-        // Label title = new Label("RoboRally Games");
-        // ListView<String> gameList = new ListView<>();
-        // Button addGameBtn = new Button("Add New Game");
-        // Button signUpBtn = new Button("Sign Up as Player");
-
-        // VBox vbox1 = new VBox(addGameBtn, gameList);
-        // VBox vbox2 = new VBox(signUpBtn);
-        // HBox root = new HBox(vbox1, vbox2);
-
-        // root.setPadding(new Insets(10));
-
+        // Set up the REST client for connecting to the backend
         RestClient customClient = RestClient.builder()
                 .baseUrl("http://localhost:8080")
                 .build();
 
+        // Get the list of games from the backend
         List<Game> games = customClient.get()
                 .uri("/game")
                 .retrieve()
@@ -162,8 +62,7 @@ public class GameSignUpClient extends Application {
         // Create Game Button
         Button createGameButton = new Button("Create Game");
         createGameButton.setOnAction(event -> {
-            System.out.println("Create Game button clicked");
-            // Add functionality to create a new game
+            // System.out.println("Create Game button clicked");
 
             Stage createGameStage = new Stage();
             createGameStage.setTitle("Create New Game");
@@ -192,9 +91,27 @@ public class GameSignUpClient extends Application {
                 int maxPlayers = Integer.parseInt(maxPlayersField.getText());
                 // catch errors here fx if maxPlayers is empty, null or not a number
 
-                System.out.println("Game Created: " + gameName + ", Min Players: " + minPlayers + ", Max Players: " + maxPlayers);
+                //System.out.println("Game Created: " + gameName + ", Min Players: " + minPlayers + ", Max Players: " + maxPlayers);
 
-                // TODO: Implement the game creation logic here
+                // TODO: Implement the game creation logic here -- done
+                try {
+                    Game newGame = new Game();
+                    newGame.setName(gameName);
+                    newGame.setMinPlayers(minPlayers);
+                    newGame.setMaxPlayers(maxPlayers);
+
+                    customClient.post()
+                            .uri("/game")
+                            .body(newGame)
+                            .retrieve()
+                            .body(Game.class);
+
+                    //System.out.println("Game Successfully Created");
+
+                } catch (Exception ex) {
+                    //System.out.println("Failed to create game: " + ex.getMessage());
+                    ex.printStackTrace();
+                }
 
                 createGameStage.close();
             });
@@ -216,6 +133,7 @@ public class GameSignUpClient extends Application {
 
         root.getChildren().addAll(title, createGameButton);
 
+        // Loop through all games and create UI for each
         for (Game game : games) {
             HBox gameBox = new HBox();
             gameBox.setSpacing(10);
@@ -228,10 +146,8 @@ public class GameSignUpClient extends Application {
 
             gameInfo.add(new Label("Game Name:"), 0, 0);
             gameInfo.add(new Label(game.getName()), 1, 0);
-
             gameInfo.add(new Label("Min Players:"), 0, 1);
             gameInfo.add(new Label(String.valueOf(game.getMinPlayers())), 1, 1);
-
             gameInfo.add(new Label("Max Players:"), 0, 2);
             gameInfo.add(new Label(String.valueOf(game.getMaxPlayers())), 1, 2);
 
@@ -287,9 +203,63 @@ public class GameSignUpClient extends Application {
                     String playerName = playerNameField.getText();
                     // catch errors here fx if playerName is empty, null or not a number
 
-                    System.out.println("Signing up for game: " + game.getName() + ", User: " + userName + ", Player: " + playerName);
+                    //System.out.println("Signing up for game: " + game.getName() + ", User: " + userName + ", Player: " + playerName);
 
-                    // TODO: Implement the sign-up logic here
+                    // TODO: Implement the sign-up logic here -- done
+                    try {
+                        // check if user exists
+                        List<User> users = customClient.get()
+                                .uri("/user")
+                                .retrieve()
+                                .body(HALWrapperUsers.class)
+                                .getUsers();
+
+                        User user = users.stream()
+                                .filter(u -> userName.equalsIgnoreCase(u.getName()))
+                                .findFirst()
+                                .orElse(null);
+
+                        // if the user does not exist, create a new one
+                        if (user == null) {
+                            User newUser = new User();
+                            newUser.setName(userName);
+
+                            customClient.post()
+                                    .uri("/user")
+                                    .body(newUser)
+                                    .retrieve()
+                                    .toBodilessEntity(); // don't expect a return body
+
+                            // fetch again to obtain UID
+                            user = customClient.get()
+                                    .uri("/user")
+                                    .retrieve()
+                                    .body(HALWrapperUsers.class)
+                                    .getUsers()
+                                    .stream()
+                                    .filter(u -> userName.equalsIgnoreCase(u.getName()))
+                                    .findFirst()
+                                    .orElseThrow(() -> new RuntimeException("Failed to create and retrieve user"));
+                        }
+
+                        // create a new Player linked to the user and game
+                        Map<String, Object> playerData = new HashMap<>();
+                        playerData.put("name", playerName);
+                        playerData.put("user", "/user/" + user.getUid());
+                        playerData.put("game", "/game/" + game.getUid());
+
+                        Player createdPlayer = customClient.post()
+                                .uri("/player")
+                                .body(playerData)
+                                .retrieve()
+                                .body(Player.class);
+
+                        //System.out.println("Player signed up: " + createdPlayer.getName());
+
+                    } catch (Exception ex) {
+                        System.err.println("Error during sign-up: " + ex.getMessage());
+                        ex.printStackTrace();
+                    }
 
                     signUpStage.close();
                 });

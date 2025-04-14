@@ -44,6 +44,7 @@ public class Game {
         return players;
     }
 
+
     public int getMinPlayers() {
         return minPlayers;
     }

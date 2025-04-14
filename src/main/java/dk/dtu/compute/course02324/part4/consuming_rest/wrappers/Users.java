@@ -15,7 +15,7 @@ public class Users {
         return user;
     }
 
-    public void setPlayer(List<User> user) {
+    public void setUser(List<User> user) {
         this.user = user;
     }
 

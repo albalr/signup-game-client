@@ -8,7 +8,7 @@ import java.util.List;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class HALWrapperUsers {
 
-    private Users _embedded;
+    private Users _embedded = null;
 
     public Users get_embedded() {
         return _embedded;
