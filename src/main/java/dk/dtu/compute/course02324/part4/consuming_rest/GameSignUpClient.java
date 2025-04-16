@@ -252,10 +252,27 @@ public class GameSignUpClient extends Application {
                     return;
                 }
 
-                System.out.println(
-                        "Game Created: " + gameName + ", Min Players: " + minPlayers + ", Max Players: " + maxPlayers);
+                // Create new game
+                try {
+                    Game newGame = new Game();
+                    newGame.setName(gameName);
+                    newGame.setMinPlayers(minPlayers);
+                    newGame.setMaxPlayers(maxPlayers);
 
-                // TODO: Implement the game creation logic here
+                    customClient.post()
+                            .uri("/game")
+                            .body(newGame)
+                            .retrieve()
+                            .body(Game.class);
+
+                    System.out.println(
+                            "Game Created: " + gameName + ", Min Players: " + minPlayers + ", Max Players: "
+                                    + maxPlayers + ", UID: " + newGame.getUid());
+
+                } catch (Exception ex) {
+                    // System.out.println("Failed to create game: " + ex.getMessage());
+                    ex.printStackTrace();
+                }
 
                 createGameStage.close();
             });
@@ -452,7 +469,8 @@ public class GameSignUpClient extends Application {
                                         // Assign the player to the user
                                         String playerUri = "http://localhost:8080/player/" + createdPlayer.getUid();
                                         System.out.println("Player URI: " + playerUri);
-                                        System.out.println("Assigning player ID: " + createdPlayer.getUid() + " to user with ID: " + userId);
+                                        System.out.println("Assigning player ID: " + createdPlayer.getUid()
+                                                + " to user with ID: " + userId);
                                         customClient.put()
                                                 .uri("/player/" + createdPlayer.getUid() + "/user")
                                                 .header("Content-Type", "text/uri-list")
