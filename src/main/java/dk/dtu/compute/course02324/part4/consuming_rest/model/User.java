@@ -1,6 +1,7 @@
 package dk.dtu.compute.course02324.part4.consuming_rest.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.List;
 
@@ -11,9 +12,12 @@ public class User {
 
     private String name;
 
+    //@JsonProperty("_links")
+    //private Links links;
+
     // TODO this class needs to be extended with references to Player and
-    //      the other way round (similar to the reference from Game to Player
-    //      and the other way round.
+    // the other way round (similar to the reference from Game to Player
+    // and the other way round.
 
     private List<Player> players;
 
@@ -22,7 +26,7 @@ public class User {
     }
 
     public void setUid(long id) {
-        this.uid = uid;
+        this.uid = id;
     }
 
     public String getName() {
@@ -40,5 +44,4 @@ public class User {
                 ", name='" + name + '\'' +
                 '}';
     }
-
 }

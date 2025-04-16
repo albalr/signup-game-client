@@ -4,14 +4,13 @@ import dk.dtu.compute.course02324.part4.consuming_rest.model.Game;
 import dk.dtu.compute.course02324.part4.consuming_rest.model.Player;
 import dk.dtu.compute.course02324.part4.consuming_rest.model.User;
 import dk.dtu.compute.course02324.part4.consuming_rest.wrappers.HALWrapperPlayers;
-import dk.dtu.compute.course02324.part4.consuming_rest.wrappers.HALWrapperUsers;
 import dk.dtu.compute.course02324.part4.consuming_rest.wrappers.HALWrapperGames;
+import dk.dtu.compute.course02324.part4.consuming_rest.wrappers.HALWrapperUsers;
 import javafx.application.Application;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import javafx.scene.layout.GridPane;
@@ -253,7 +252,8 @@ public class GameSignUpClient extends Application {
                     return;
                 }
 
-                System.out.println("Game Created: " + gameName + ", Min Players: " + minPlayers + ", Max Players: " + maxPlayers);
+                System.out.println(
+                        "Game Created: " + gameName + ", Min Players: " + minPlayers + ", Max Players: " + maxPlayers);
 
                 // TODO: Implement the game creation logic here
 
@@ -267,7 +267,8 @@ public class GameSignUpClient extends Application {
             createGameLayout.add(maxPlayersLabel, 0, 2);
             createGameLayout.add(maxPlayersField, 1, 2);
             createGameLayout.add(submitGameButton, 1, 3);
-            //createGameLayout.getChildren().addAll(nameLabel, nameField, minPlayersLabel, minPlayersField, maxPlayersLabel, maxPlayersField, submitGameButton);
+            // createGameLayout.getChildren().addAll(nameLabel, nameField, minPlayersLabel,
+            // minPlayersField, maxPlayersLabel, maxPlayersField, submitGameButton);
 
             Scene createGameScene = new Scene(createGameLayout);
             createGameStage.setScene(createGameScene);
@@ -318,13 +319,15 @@ public class GameSignUpClient extends Application {
                 labelContainer.setHgap(10);
                 labelContainer.setVgap(15);
                 labelContainer.setPadding(new Insets(10));
-                labelContainer.setStyle("-fx-border-color: black; -fx-border-width: 1; -fx-border-style: solid; -fx-background-color: white;");
+                labelContainer.setStyle(
+                        "-fx-border-color: black; -fx-border-width: 1; -fx-border-style: solid; -fx-background-color: white;");
 
                 Label gameNameLabel = new Label("Game: " + game.getName());
                 Label minPlayersLabel = new Label("Min players: " + game.getMinPlayers());
                 Label maxPlayersLabel = new Label("Max players: " + game.getMaxPlayers());
                 // Not implemented yet
-                // Label currentPlayers = new Label("Current players: " + game.getCurrentPlayers());
+                // Label currentPlayers = new Label("Current players: " +
+                // game.getCurrentPlayers());
 
                 labelContainer.add(gameNameLabel, 0, 0);
                 labelContainer.add(minPlayersLabel, 0, 1);
@@ -367,7 +370,115 @@ public class GameSignUpClient extends Application {
                         return;
                     }
 
-                    System.out.println("Signing up for game: " + game.getName() + ", User: " + userName + ", Player: " + playerName);
+                    System.out.println("Signing up for game: " + game.getName() + ", User: " + userName + ", Player: "
+                            + playerName);
+
+                    try {
+                        // Create the player
+                        Player newPlayer = new Player();
+                        newPlayer.setName(playerName);
+
+                        ResponseEntity<Void> playerResponse = customClient.post()
+                                .uri("/player")
+                                .header("Content-Type", "application/json")
+                                .body(newPlayer)
+                                .retrieve()
+                                .toEntity(Void.class);
+
+                        System.out.println("Response Status Code: " + playerResponse.getStatusCode());
+
+                        if (playerResponse.getStatusCode().is2xxSuccessful()) {
+                            // Fetch the created player by name
+                            ResponseEntity<HALWrapperPlayers> fetchResponse = customClient.get()
+                                    .uri("/player/search/findByName?name=" + playerName)
+                                    .retrieve()
+                                    .toEntity(HALWrapperPlayers.class);
+
+                            System.out.println("Raw Response Body: " + fetchResponse.getBody());
+
+                            if (fetchResponse.getStatusCode().is2xxSuccessful() && fetchResponse.getBody() != null) {
+                                List<Player> players = fetchResponse.getBody().getPlayers();
+                                System.out.println("Deserialized Players: " + players);
+
+                                if (players == null || players.isEmpty()) {
+                                    System.out.println("Error: No players found in the response.");
+                                    return;
+                                }
+
+                                Player createdPlayer = players.get(0);
+                                System.out.println("Player fetched successfully: " + createdPlayer);
+
+                                if (createdPlayer.getUid() == 0) {
+                                    System.out.println(
+                                            "Error: Player UID is null or 0. Check backend response or deserialization.");
+                                    return;
+                                }
+
+                                // Assign the player to the game
+                                String gameUri = "http://localhost:8080/game/" + game.getUid();
+                                System.out.println("Game URI: " + gameUri);
+                                customClient.put()
+                                        .uri("/player/" + createdPlayer.getUid() + "/game")
+                                        .header("Content-Type", "text/uri-list")
+                                        .body(gameUri)
+                                        .retrieve()
+                                        .toEntity(Void.class);
+
+                                System.out.println("Player assigned to game successfully.");
+                                System.out.println("Player: " + createdPlayer);
+
+                                // Fetch the user by username and assign the player to the user
+                                long userId = 0;
+                                try {
+                                    // Fetch the user by username
+                                    ResponseEntity<HALWrapperUsers> userResponse = customClient.get()
+                                            .uri("/user/search/findByName?name=" + userName)
+                                            .retrieve()
+                                            .toEntity(HALWrapperUsers.class);
+
+                                    if (userResponse.getStatusCode().is2xxSuccessful()
+                                            && userResponse.getBody() != null) {
+                                        List<User> users = userResponse.getBody().getUsers();
+                                        if (users == null || users.isEmpty()) {
+                                            System.out.println("No user found with username: " + userName);
+                                            return;
+                                        }
+
+                                        User user = users.get(0); // Assuming the first user is the one you want
+                                        userId = user.getUid();
+                                        String userUri = "http://localhost:8080/user/" + userId;
+                                        System.out.println("User URI: " + userUri);
+
+                                        // Assign the player to the user
+                                        String playerUri = "http://localhost:8080/player/" + createdPlayer.getUid();
+                                        System.out.println("Player URI: " + playerUri);
+                                        System.out.println("Assigning player ID: " + createdPlayer.getUid() + " to user with ID: " + userId);
+                                        customClient.put()
+                                                .uri("/player/" + createdPlayer.getUid() + "/user")
+                                                .header("Content-Type", "text/uri-list")
+                                                .body(userUri)
+                                                .retrieve()
+                                                .toEntity(Void.class);
+
+                                        System.out.println("Player assigned to user successfully.");
+                                    } else {
+                                        System.out.println("Failed to fetch user by username. Status Code: "
+                                                + userResponse.getStatusCode());
+                                    }
+                                } catch (Exception ex) {
+                                    System.out.println("An error occurred while fetching the user: " + ex.getMessage());
+                                }
+
+                            } else {
+                                System.out.println("Failed to fetch created player.");
+                            }
+                        } else {
+                            System.out
+                                    .println("Failed to create player. Status Code: " + playerResponse.getStatusCode());
+                        }
+                    } catch (Exception ex) {
+                        System.out.println("Failed to create or sign up player: " + ex.getMessage());
+                    }
 
                     signUpStage.close();
                 });
@@ -386,12 +497,12 @@ public class GameSignUpClient extends Application {
 
             });
 
-            //gameInfo.add(signUpButton, 0, 3, 2, 1);
+            // gameInfo.add(signUpButton, 0, 3, 2, 1);
 
-//            ScrollPane gameScrollPane = new ScrollPane();
-//            gameScrollPane.setContent(gameInfo);
-//            gameScrollPane.setPrefWidth(200);
-//            gameScrollPane.setFitToHeight(true);
+            // ScrollPane gameScrollPane = new ScrollPane();
+            // gameScrollPane.setContent(gameInfo);
+            // gameScrollPane.setPrefWidth(200);
+            // gameScrollPane.setFitToHeight(true);
             VBox buttonBox = new VBox();
             buttonBox.setPadding(new Insets(30, 0, 0, 0));
             buttonBox.getChildren().add(signUpButton);
@@ -401,9 +512,10 @@ public class GameSignUpClient extends Application {
             gamePane.getChildren().addAll(gameInfo, buttonBox);
 
             gameBox.getChildren().add(gamePane);
-            gameBox.setStyle("-fx-border-color: black; -fx-border-width: 1; -fx-border-style: solid; -fx-background-color: white;");
+            gameBox.setStyle(
+                    "-fx-border-color: black; -fx-border-width: 1; -fx-border-style: solid; -fx-background-color: white;");
 
-            //gameBox.getChildren().addAll(gameScrollPane);
+            // gameBox.getChildren().addAll(gameScrollPane);
             root.getChildren().add(gameBox);
         }
 
