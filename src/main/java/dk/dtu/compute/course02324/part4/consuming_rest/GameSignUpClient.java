@@ -293,7 +293,12 @@ public class GameSignUpClient extends Application {
             createGameStage.show();
         });
 
-        root.getChildren().addAll(title, createGameButton);
+        //root.getChildren().addAll(title, createGameButton);
+
+        // Create a VBox to hold all game elements
+        VBox gameListContainer = new VBox();
+        gameListContainer.setSpacing(10);
+        gameListContainer.setPadding(new Insets(10));
 
         for (Game game : games) {
             HBox gameBox = new HBox();
@@ -533,11 +538,16 @@ public class GameSignUpClient extends Application {
             gameBox.setStyle(
                     "-fx-border-color: black; -fx-border-width: 1; -fx-border-style: solid; -fx-background-color: white;");
 
-            // gameBox.getChildren().addAll(gameScrollPane);
-            root.getChildren().add(gameBox);
+            gameListContainer.getChildren().add(gameBox);
         }
 
-        // vbox1.getChildren().addAll(title, gameList, addGameBtn, signUpBtn);
+        // Wrap the VBox in a ScrollPane
+        ScrollPane scrollPane = new ScrollPane();
+        scrollPane.setContent(gameListContainer);
+        scrollPane.setFitToWidth(true); // Ensures the content width matches the ScrollPane width
+
+        // Add the ScrollPane to the root layout
+        root.getChildren().addAll(title, createGameButton, scrollPane);
 
         primaryStage.setTitle("RoboRally Game Sign-Up");
         primaryStage.setScene(new Scene(root, 400, 300));
