@@ -161,6 +161,19 @@ public class GameSignUpClient extends Application {
 
         Label title = new Label("RoboRally Games");
 
+        // Menu
+        MenuBar menuBar = new MenuBar();
+
+        Menu userMenu = new Menu("User");
+        MenuItem signUpItem = new MenuItem("Sign Up");
+        MenuItem signInItem = new MenuItem("Sign In");
+        MenuItem signOutItem = new MenuItem("Sign Out");
+
+        userMenu.getItems().addAll(signUpItem, signInItem, signOutItem);
+        menuBar.getMenus().add(userMenu);
+
+        root.getChildren().add(0, menuBar);
+
         // Create Game Button
         Button createGameButton = new Button("Create Game");
         createGameButton.setOnAction(event -> {
