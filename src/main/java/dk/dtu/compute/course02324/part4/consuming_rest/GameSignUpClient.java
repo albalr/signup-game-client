@@ -8,6 +8,7 @@ import javafx.application.Application;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
@@ -35,9 +36,7 @@ public class GameSignUpClient extends Application {
                     .baseUrl("http://localhost:8080")
                     .build();
 
-            VBox root = new VBox();
-            root.setSpacing(10);
-            root.setPadding(new Insets(10));
+            BorderPane root = new BorderPane();
 
             Menu fileMenu = new Menu("File");
 
@@ -52,6 +51,12 @@ public class GameSignUpClient extends Application {
             MenuBar menuBar = new MenuBar();
             menuBar.getMenus().add(fileMenu);
 
+            root.setTop(menuBar);
+
+            VBox content = new VBox();
+            content.setSpacing(10);
+            content.setPadding(new Insets(10));
+
             Label title = new Label("RoboRally Games");
 
             Button createGameButton = new Button("Create Game");
@@ -65,7 +70,9 @@ public class GameSignUpClient extends Application {
             scrollPane.setFitToWidth(true);
             scrollPane.setPrefHeight(250);
 
-            root.getChildren().addAll(menuBar, title, createGameButton, scrollPane);
+            content.getChildren().addAll(title, createGameButton, scrollPane);
+
+            root.setCenter(content);
 
             refreshGameList(customClient);
 
