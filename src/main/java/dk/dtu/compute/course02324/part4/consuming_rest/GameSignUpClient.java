@@ -116,9 +116,12 @@ public class GameSignUpClient extends Application {
             Button signUpButton = new Button("Sign Up");
             signUpButton.setOnAction(event -> showSignUpDialog(client, game));
 
+            Button deleteButton = new Button("Delete");
+            deleteButton.setOnAction(event -> showDeleteGameDialog(client, game));
+
             VBox buttonBox = new VBox();
             buttonBox.setPadding(new Insets(30, 0, 0, 0));
-            buttonBox.getChildren().add(signUpButton);
+            buttonBox.getChildren().addAll(signUpButton, deleteButton);
 
             HBox gamePane = new HBox();
             gamePane.setPrefWidth(250);
@@ -414,6 +417,24 @@ public class GameSignUpClient extends Application {
         Scene scene = new Scene(grid);
         dialog.setScene(scene);
         dialog.showAndWait();
+    }
+
+    private void showDeleteGameDialog(RestClient client, Game game) {
+        Alert deleteGameAlert = new Alert(Alert.AlertType.CONFIRMATION);
+        deleteGameAlert.setTitle("Delete Game");
+        deleteGameAlert.setHeaderText("Are you sure you want to delete the game: " + game.getName() + "?");
+        deleteGameAlert.setContentText("This action cannot be undone.");
+
+        deleteGameAlert.showAndWait().ifPresent(response -> {
+            if (response == ButtonType.OK) {
+                client.delete()
+                        .uri("/game/" + game.getUid())
+                        .retrieve()
+                        .toBodilessEntity();
+
+                refreshGameList(client);
+            }
+        });
     }
 
     private void signOut() {
