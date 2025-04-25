@@ -1,7 +1,6 @@
 package dk.dtu.compute.course02324.part4.consuming_rest;
 
 import dk.dtu.compute.course02324.part4.consuming_rest.model.Game;
-import dk.dtu.compute.course02324.part4.consuming_rest.model.Player;
 import dk.dtu.compute.course02324.part4.consuming_rest.model.User;
 import dk.dtu.compute.course02324.part4.consuming_rest.wrappers.HALWrapperGames;
 import javafx.application.Application;
@@ -261,9 +260,12 @@ public class GameSignUpClient extends Application {
                         .uri("/player")
                         .body(playerData)
                         .retrieve()
-                        .body(Player.class);
+                        .toBodilessEntity();
+
+                showAlert("Success", "Successfully signed up for " + game.getName());
             } catch (Exception ex) {
                 ex.printStackTrace();
+                showAlert("Error", "Failed to sign up for game: " + ex.getMessage());
             }
 
             signUpStage.close();
@@ -385,7 +387,7 @@ public class GameSignUpClient extends Application {
                                 .body(newUser)
                                 .retrieve()
                                 .body(User.class);
-                        
+
                         signedInUser = createdUser;
                         System.out.println("Created and signed in as: " + signedInUser.getName());
                         showAlert("Success", "Successfully created and signed in as " + signedInUser.getName());
