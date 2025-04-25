@@ -23,6 +23,7 @@ public class Game {
 
     private List<Player> players;
 
+    private String owner;
 
     public long getUid() {
         return uid;
@@ -63,6 +64,14 @@ public class Game {
 
     public void setPlayers(List<Player> players) {
         this.players = players;
+    }
+
+    public String getOwner() {
+        return owner;
+    }
+
+    public void setOwner(String owner) {
+        this.owner = owner;
     }
 
     @Override

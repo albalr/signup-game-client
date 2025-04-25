@@ -18,6 +18,7 @@ import org.springframework.web.client.RestClient;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 public class GameSignUpClient extends Application {
 
@@ -116,12 +117,16 @@ public class GameSignUpClient extends Application {
             Button signUpButton = new Button("Sign Up");
             signUpButton.setOnAction(event -> showSignUpDialog(client, game));
 
-            Button deleteButton = new Button("Delete");
-            deleteButton.setOnAction(event -> showDeleteGameDialog(client, game));
-
             VBox buttonBox = new VBox();
             buttonBox.setPadding(new Insets(30, 0, 0, 0));
-            buttonBox.getChildren().addAll(signUpButton, deleteButton);
+            buttonBox.getChildren().add(signUpButton);
+
+            // Only show the delete button if the user is the owner of the game
+            if (signedInUser != null && Objects.equals(signedInUser.getName(), game.getOwner())) {
+                Button deleteButton = new Button("Delete");
+                deleteButton.setOnAction(event -> showDeleteGameDialog(client, game));
+                buttonBox.getChildren().add(deleteButton);
+            }
 
             HBox gamePane = new HBox();
             gamePane.setPrefWidth(250);
@@ -160,6 +165,7 @@ public class GameSignUpClient extends Application {
                 newGame.setName(nameField.getText());
                 newGame.setMinPlayers(Integer.parseInt(minPlayersField.getText()));
                 newGame.setMaxPlayers(Integer.parseInt(maxPlayersField.getText()));
+                newGame.setOwner(signedInUser.getName());
 
                 client.post()
                         .uri("/game")
@@ -167,7 +173,6 @@ public class GameSignUpClient extends Application {
                         .retrieve()
                         .body(Game.class);
 
-                refreshGameList(client);
             } catch (Exception ex) {
                 ex.printStackTrace();
             }
@@ -181,6 +186,8 @@ public class GameSignUpClient extends Application {
         layout.add(new Label("Max Players:"), 0, 2);
         layout.add(maxPlayersField, 1, 2);
         layout.add(submitButton, 1, 3);
+
+        refreshGameList(client);
 
         createGameStage.setScene(new Scene(layout));
         createGameStage.sizeToScene();
@@ -322,10 +329,12 @@ public class GameSignUpClient extends Application {
                     signedInUser = users.get(0);
                     System.out.println("Signed in as: " + signedInUser.getName());
                     showAlert("Success", "Successfully signed in as " + signedInUser.getName());
+                    refreshGameList(client);
                     dialog.close();
                 } else {
                     errorLabel.setText("User not found. Please sign up first.");
                 }
+
             } catch (Exception ex) {
                 errorLabel.setText("Error connecting to server. Please try again.");
                 ex.printStackTrace();
@@ -339,6 +348,8 @@ public class GameSignUpClient extends Application {
         grid.add(errorLabel, 0, 2, 2, 1);
         grid.add(signInButton, 0, 3);
         grid.add(cancelButton, 1, 3);
+
+        refreshGameList(client);
 
         Scene scene = new Scene(grid);
         dialog.setScene(scene);
