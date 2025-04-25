@@ -44,10 +44,13 @@ public class GameSignUpClient extends Application {
             MenuItem signInItem = new MenuItem("Sign In");
             signInItem.setOnAction(e -> showSignInDialog(customClient));
 
+            MenuItem signUpItem = new MenuItem("Sign Up");
+            signUpItem.setOnAction(e -> showSignUpDialog(customClient));
+
             MenuItem signOutItem = new MenuItem("Sign Out");
             signOutItem.setOnAction(e -> signOut());
 
-            fileMenu.getItems().addAll(signInItem, signOutItem);
+            fileMenu.getItems().addAll(signInItem, signUpItem, signOutItem);
 
             MenuBar menuBar = new MenuBar();
             menuBar.getMenus().add(fileMenu);
@@ -271,41 +274,49 @@ public class GameSignUpClient extends Application {
 
     private void showSignInDialog(RestClient client) {
         Stage dialog = new Stage();
-        dialog.setTitle("Register for Online RoboRally");
+        dialog.setTitle("Sign In to RoboRally");
 
         GridPane grid = new GridPane();
         grid.setVgap(10);
         grid.setHgap(10);
         grid.setPadding(new Insets(10));
 
-        Label instruction = new Label("Register as user for Online RoboRally with a (new) user name.");
+        Label instruction = new Label("Enter your username:");
         TextField userNameField = new TextField();
+        Label errorLabel = new Label();
+        errorLabel.setStyle("-fx-text-fill: red;");
 
         Button signInButton = new Button("Sign in");
         Button cancelButton = new Button("Cancel");
 
         signInButton.setOnAction(e -> {
-            String name = userNameField.getText();
-            if (name.length() >= 4) {
-                try {
-                    List<User> users = client.get()
-                            .uri(uriBuilder -> uriBuilder
-                                    .path("/users/searchusers")
-                                    .queryParam("name", name)
-                                    .build())
-                            .retrieve()
-                            .body(new ParameterizedTypeReference<List<User>>() {});
+            String name = userNameField.getText().trim();
+            if (name.length() < 4) {
+                errorLabel.setText("Username must be at least 4 characters long");
+                return;
+            }
 
-                    if (!users.isEmpty()) {
-                        signedInUser = users.get(0);
-                        System.out.println("Signed in as: " + signedInUser.getName());
-                        dialog.close();
-                    } else {
-                        showAlert("Sign In Failed", "User not found.");
-                    }
-                } catch (Exception ex) {
-                    ex.printStackTrace();
+            try {
+                List<User> users = client.get()
+                        .uri(uriBuilder -> uriBuilder
+                                .path("/users/searchusers")
+                                .queryParam("name", name)
+                                .build())
+                        .retrieve()
+                        .body(new ParameterizedTypeReference<List<User>>() {});
+
+                if (!users.isEmpty()) {
+                    // Existing user found
+                    signedInUser = users.get(0);
+                    System.out.println("Signed in as: " + signedInUser.getName());
+                    showAlert("Success", "Successfully signed in as " + signedInUser.getName());
+                    dialog.close();
+                } else {
+                    errorLabel.setText("User not found. Please sign up first.");
                 }
+            } catch (Exception ex) {
+                errorLabel.setText("Error connecting to server. Please try again.");
+                ex.printStackTrace();
             }
         });
 
@@ -313,8 +324,83 @@ public class GameSignUpClient extends Application {
 
         grid.add(instruction, 0, 0, 2, 1);
         grid.add(userNameField, 0, 1, 2, 1);
-        grid.add(signInButton, 0, 2);
-        grid.add(cancelButton, 1, 2);
+        grid.add(errorLabel, 0, 2, 2, 1);
+        grid.add(signInButton, 0, 3);
+        grid.add(cancelButton, 1, 3);
+
+        Scene scene = new Scene(grid);
+        dialog.setScene(scene);
+        dialog.showAndWait();
+    }
+
+    private void showSignUpDialog(RestClient client) {
+        Stage dialog = new Stage();
+        dialog.setTitle("Sign Up for RoboRally");
+
+        GridPane grid = new GridPane();
+        grid.setVgap(10);
+        grid.setHgap(10);
+        grid.setPadding(new Insets(10));
+
+        Label instruction = new Label("Enter your username (minimum 4 characters):");
+        TextField userNameField = new TextField();
+        Label errorLabel = new Label();
+        errorLabel.setStyle("-fx-text-fill: red;");
+
+        Button signUpButton = new Button("Sign up");
+        Button cancelButton = new Button("Cancel");
+
+        signUpButton.setOnAction(e -> {
+            String name = userNameField.getText().trim();
+            if (name.length() < 4) {
+                errorLabel.setText("Username must be at least 4 characters long");
+                return;
+            }
+
+            try {
+                List<User> users = client.get()
+                        .uri(uriBuilder -> uriBuilder
+                                .path("/users/searchusers")
+                                .queryParam("name", name)
+                                .build())
+                        .retrieve()
+                        .body(new ParameterizedTypeReference<List<User>>() {});
+
+                if (!users.isEmpty()) {
+                    errorLabel.setText("Username already exists. Please choose a different name.");
+                } else {
+                    // Create new user
+                    User newUser = new User();
+                    newUser.setName(name);
+                    try {
+                        User createdUser = client.post()
+                                .uri("/users/signup")
+                                .body(newUser)
+                                .retrieve()
+                                .body(User.class);
+                        
+                        signedInUser = createdUser;
+                        System.out.println("Created and signed in as: " + signedInUser.getName());
+                        showAlert("Success", "Successfully created and signed in as " + signedInUser.getName());
+                        dialog.close();
+                    } catch (Exception ex) {
+                        errorLabel.setText("Failed to create new user. Please try again.");
+                        ex.printStackTrace();
+                    }
+                }
+            } catch (Exception ex) {
+                errorLabel.setText("Error connecting to server. Please try again.");
+                ex.printStackTrace();
+            }
+        });
+
+        cancelButton.setOnAction(e -> dialog.close());
+
+        grid.add(instruction, 0, 0, 2, 1);
+        grid.add(userNameField, 0, 1, 2, 1);
+        grid.add(errorLabel, 0, 2, 2, 1);
+        grid.add(signUpButton, 0, 3);
+        grid.add(cancelButton, 1, 3);
 
         Scene scene = new Scene(grid);
         dialog.setScene(scene);
