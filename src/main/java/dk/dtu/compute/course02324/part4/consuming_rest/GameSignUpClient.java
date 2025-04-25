@@ -121,6 +121,12 @@ public class GameSignUpClient extends Application {
             buttonBox.setPadding(new Insets(30, 0, 0, 0));
             buttonBox.getChildren().add(signUpButton);
 
+            if (signedInUser != null && !Objects.equals(signedInUser.getName(), game.getOwner())) {
+                Button leaveButton = new Button("Leave");
+                leaveButton.setOnAction(event -> showLeaveGameDialog(client, game));
+                buttonBox.getChildren().add(leaveButton);
+            }
+
             // Only show the delete button if the user is the owner of the game
             if (signedInUser != null && Objects.equals(signedInUser.getName(), game.getOwner())) {
                 Button deleteButton = new Button("Delete");
@@ -172,6 +178,8 @@ public class GameSignUpClient extends Application {
                         .body(newGame)
                         .retrieve()
                         .body(Game.class);
+
+                refreshGameList(client);
 
             } catch (Exception ex) {
                 ex.printStackTrace();
@@ -415,6 +423,7 @@ public class GameSignUpClient extends Application {
                 errorLabel.setText("Error connecting to server. Please try again.");
                 ex.printStackTrace();
             }
+            refreshGameList(client);
         });
 
         cancelButton.setOnAction(e -> dialog.close());
@@ -442,6 +451,21 @@ public class GameSignUpClient extends Application {
                         .uri("/game/" + game.getUid())
                         .retrieve()
                         .toBodilessEntity();
+
+                refreshGameList(client);
+            }
+        });
+    }
+
+    private void showLeaveGameDialog(RestClient client, Game game) {
+        Alert leaveGameAlert = new Alert(Alert.AlertType.CONFIRMATION);
+        leaveGameAlert.setTitle("Leave Game");
+        leaveGameAlert.setHeaderText("Are you sure you want to leave the game: " + game.getName() + "?");
+        leaveGameAlert.setContentText("You will no longer be a participant in this game.");
+
+        // Leave game logic idk
+        leaveGameAlert.showAndWait().ifPresent(response -> {
+            if (response == ButtonType.OK) {
 
                 refreshGameList(client);
             }
