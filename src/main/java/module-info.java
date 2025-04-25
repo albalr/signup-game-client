@@ -9,6 +9,7 @@ module rest_client {
     requires spring.web;
     requires com.fasterxml.jackson.annotation;
     requires javafx.controls;
+    requires spring.core;
 
     exports dk.dtu.compute.course02324.part4.consuming_rest;
 

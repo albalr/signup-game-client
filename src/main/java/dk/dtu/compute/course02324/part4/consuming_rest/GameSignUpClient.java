@@ -4,18 +4,15 @@ import dk.dtu.compute.course02324.part4.consuming_rest.model.Game;
 import dk.dtu.compute.course02324.part4.consuming_rest.model.Player;
 import dk.dtu.compute.course02324.part4.consuming_rest.model.User;
 import dk.dtu.compute.course02324.part4.consuming_rest.wrappers.HALWrapperGames;
-import dk.dtu.compute.course02324.part4.consuming_rest.wrappers.HALWrapperUsers;
 import javafx.application.Application;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.ScrollPane;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.web.client.RestClient;
 
 import java.util.HashMap;
@@ -24,6 +21,7 @@ import java.util.Map;
 
 public class GameSignUpClient extends Application {
 
+    private User signedInUser;
     private VBox gameListContainer;
 
     public static void main(String[] args) {
@@ -32,34 +30,52 @@ public class GameSignUpClient extends Application {
 
     @Override
     public void start(Stage primaryStage) throws Exception {
-        RestClient customClient = RestClient.builder()
-                .baseUrl("http://localhost:8080")
-                .build();
+        try {
+            RestClient customClient = RestClient.builder()
+                    .baseUrl("http://localhost:8080")
+                    .build();
 
-        VBox root = new VBox();
-        root.setSpacing(10);
-        root.setPadding(new Insets(10));
+            VBox root = new VBox();
+            root.setSpacing(10);
+            root.setPadding(new Insets(10));
 
-        Label title = new Label("RoboRally Games");
+            Menu fileMenu = new Menu("File");
 
-        Button createGameButton = new Button("Create Game");
-        createGameButton.setOnAction(event -> showCreateGameDialog(customClient));
+            MenuItem signInItem = new MenuItem("Sign In");
+            signInItem.setOnAction(e -> showSignInDialog(customClient));
 
-        gameListContainer = new VBox();
-        gameListContainer.setSpacing(10);
+            MenuItem signOutItem = new MenuItem("Sign Out");
+            signOutItem.setOnAction(e -> signOut());
 
-        ScrollPane scrollPane = new ScrollPane();
-        scrollPane.setContent(gameListContainer);
-        scrollPane.setFitToWidth(true);
-        scrollPane.setPrefHeight(250); // Adjust height as needed
+            fileMenu.getItems().addAll(signInItem, signOutItem);
 
-        root.getChildren().addAll(title, createGameButton, scrollPane);
+            MenuBar menuBar = new MenuBar();
+            menuBar.getMenus().add(fileMenu);
 
-        refreshGameList(customClient);
+            Label title = new Label("RoboRally Games");
 
-        primaryStage.setTitle("RoboRally Game Sign-Up");
-        primaryStage.setScene(new Scene(root, 400, 300));
-        primaryStage.show();
+            Button createGameButton = new Button("Create Game");
+            createGameButton.setOnAction(event -> showCreateGameDialog(customClient));
+
+            gameListContainer = new VBox();
+            gameListContainer.setSpacing(10);
+
+            ScrollPane scrollPane = new ScrollPane();
+            scrollPane.setContent(gameListContainer);
+            scrollPane.setFitToWidth(true);
+            scrollPane.setPrefHeight(250);
+
+            root.getChildren().addAll(menuBar, title, createGameButton, scrollPane);
+
+            refreshGameList(customClient);
+
+            primaryStage.setTitle("RoboRally Game Sign-Up");
+            primaryStage.setScene(new Scene(root, 400, 300));
+            primaryStage.show();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     private void refreshGameList(RestClient client) {
@@ -107,6 +123,11 @@ public class GameSignUpClient extends Application {
     }
 
     private void showCreateGameDialog(RestClient client) {
+        if (signedInUser == null) {
+            showAlert("Not Signed In", "Please sign in before creating a game.");
+            return;
+        }
+
         Stage createGameStage = new Stage();
         createGameStage.setTitle("Create New Game");
 
@@ -135,11 +156,9 @@ public class GameSignUpClient extends Application {
                         .body(Game.class);
 
                 refreshGameList(client);
-
             } catch (Exception ex) {
                 ex.printStackTrace();
             }
-
             createGameStage.close();
         });
 
@@ -160,6 +179,12 @@ public class GameSignUpClient extends Application {
         Stage signUpStage = new Stage();
         signUpStage.setTitle("Sign Up for Game");
 
+        if (signedInUser == null) {
+            showAlert("Not Signed In", "Please sign in before signing up for a game.");
+            signUpStage.close();
+            return;
+        }
+
         GridPane layout = new GridPane();
         layout.setHgap(10);
         layout.setVgap(15);
@@ -175,23 +200,19 @@ public class GameSignUpClient extends Application {
         labelBox.add(new Label("Min players: " + game.getMinPlayers()), 0, 1);
         labelBox.add(new Label("Max players: " + game.getMaxPlayers()), 0, 2);
 
-        TextField userField = new TextField();
-        userField.setPromptText("Enter your user");
-
         TextField playerField = new TextField();
         playerField.setPromptText("Enter your player");
 
         Button submitButton = new Button("Sign up!");
         submitButton.setOnAction(e -> {
             try {
-                String userName = userField.getText();
+                String userName = signedInUser.getName();
                 String playerName = playerField.getText();
 
                 List<User> users = client.get()
-                        .uri("/user")
+                        .uri("/users/allusers")
                         .retrieve()
-                        .body(HALWrapperUsers.class)
-                        .getUsers();
+                        .body(new ParameterizedTypeReference<List<User>>() {});
 
                 User user = users.stream()
                         .filter(u -> userName.equalsIgnoreCase(u.getName()))
@@ -201,22 +222,29 @@ public class GameSignUpClient extends Application {
                 if (user == null) {
                     User newUser = new User();
                     newUser.setName(userName);
-                    client.post().uri("/user").body(newUser).retrieve().toBodilessEntity();
-
-                    user = client.get()
-                            .uri("/user")
+                    client.post()
+                            .uri("/users/signup")
+                            .body(newUser)
                             .retrieve()
-                            .body(HALWrapperUsers.class)
-                            .getUsers()
-                            .stream()
-                            .filter(u -> userName.equalsIgnoreCase(u.getName()))
-                            .findFirst()
-                            .orElseThrow(() -> new RuntimeException("Failed to create and retrieve user"));
+                            .toBodilessEntity();
+
+                    users = client.get()
+                            .uri(uriBuilder -> uriBuilder
+                                    .path("/users/searchusers")
+                                    .queryParam("name", userName)
+                                    .build())
+                            .retrieve()
+                            .body(new ParameterizedTypeReference<List<User>>() {});
                 }
+
+                user = users.stream()
+                        .filter(u -> userName.equalsIgnoreCase(u.getName()))
+                        .findFirst()
+                        .orElseThrow(() -> new RuntimeException("Failed to create and retrieve user"));
 
                 Map<String, Object> playerData = new HashMap<>();
                 playerData.put("name", playerName);
-                playerData.put("user", "/user/" + user.getUid());
+                playerData.put("user", "/users/" + user.getUid());
                 playerData.put("game", "/game/" + game.getUid());
 
                 client.post()
@@ -224,7 +252,6 @@ public class GameSignUpClient extends Application {
                         .body(playerData)
                         .retrieve()
                         .body(Player.class);
-
             } catch (Exception ex) {
                 ex.printStackTrace();
             }
@@ -233,14 +260,80 @@ public class GameSignUpClient extends Application {
         });
 
         layout.add(labelBox, 0, 0, 2, 1);
-        layout.add(new Label("User:"), 0, 1);
-        layout.add(userField, 1, 1);
-        layout.add(new Label("Player:"), 0, 2);
-        layout.add(playerField, 1, 2);
-        layout.add(submitButton, 1, 3);
+        layout.add(new Label("Player:"), 0, 1);
+        layout.add(playerField, 1, 1);
+        layout.add(submitButton, 1, 2);
 
         signUpStage.setScene(new Scene(layout));
         signUpStage.sizeToScene();
         signUpStage.show();
+    }
+
+    private void showSignInDialog(RestClient client) {
+        Stage dialog = new Stage();
+        dialog.setTitle("Register for Online RoboRally");
+
+        GridPane grid = new GridPane();
+        grid.setVgap(10);
+        grid.setHgap(10);
+        grid.setPadding(new Insets(10));
+
+        Label instruction = new Label("Register as user for Online RoboRally with a (new) user name.");
+        TextField userNameField = new TextField();
+
+        Button signInButton = new Button("Sign in");
+        Button cancelButton = new Button("Cancel");
+
+        signInButton.setOnAction(e -> {
+            String name = userNameField.getText();
+            if (name.length() >= 4) {
+                try {
+                    List<User> users = client.get()
+                            .uri(uriBuilder -> uriBuilder
+                                    .path("/users/searchusers")
+                                    .queryParam("name", name)
+                                    .build())
+                            .retrieve()
+                            .body(new ParameterizedTypeReference<List<User>>() {});
+
+                    if (!users.isEmpty()) {
+                        signedInUser = users.get(0);
+                        System.out.println("Signed in as: " + signedInUser.getName());
+                        dialog.close();
+                    } else {
+                        showAlert("Sign In Failed", "User not found.");
+                    }
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                }
+            }
+        });
+
+        cancelButton.setOnAction(e -> dialog.close());
+
+        grid.add(instruction, 0, 0, 2, 1);
+        grid.add(userNameField, 0, 1, 2, 1);
+        grid.add(signInButton, 0, 2);
+        grid.add(cancelButton, 1, 2);
+
+        Scene scene = new Scene(grid);
+        dialog.setScene(scene);
+        dialog.showAndWait();
+    }
+
+    private void signOut() {
+        if (signedInUser != null) {
+            System.out.println("Signed out user: " + signedInUser.getName());
+        }
+        signedInUser = null;
+        showAlert("Signed Out", "You have been signed out.");
+    }
+
+    private void showAlert(String title, String message) {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.showAndWait();
     }
 }
