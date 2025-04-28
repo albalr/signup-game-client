@@ -117,22 +117,17 @@ public class GameSignUpClient extends Application {
             Button signUpButton = new Button("Sign Up");
             signUpButton.setOnAction(event -> showSignUpDialog(client, game));
 
+            Button leaveButton = new Button("Leave");
+            leaveButton.setDisable(signedInUser == null || Objects.equals(signedInUser.getName(), game.getOwner()));
+            leaveButton.setOnAction(event -> showLeaveGameDialog(client, game));
+
+            Button deleteButton = new Button("Delete");
+            deleteButton.setDisable(signedInUser == null || !Objects.equals(signedInUser.getName(), game.getOwner()));
+            deleteButton.setOnAction(event -> showDeleteGameDialog(client, game));
+
             VBox buttonBox = new VBox();
             buttonBox.setPadding(new Insets(30, 0, 0, 0));
-            buttonBox.getChildren().add(signUpButton);
-
-            if (signedInUser != null && !Objects.equals(signedInUser.getName(), game.getOwner())) {
-                Button leaveButton = new Button("Leave");
-                leaveButton.setOnAction(event -> showLeaveGameDialog(client, game));
-                buttonBox.getChildren().add(leaveButton);
-            }
-
-            // Only show the delete button if the user is the owner of the game
-            if (signedInUser != null && Objects.equals(signedInUser.getName(), game.getOwner())) {
-                Button deleteButton = new Button("Delete");
-                deleteButton.setOnAction(event -> showDeleteGameDialog(client, game));
-                buttonBox.getChildren().add(deleteButton);
-            }
+            buttonBox.getChildren().addAll(signUpButton, leaveButton, deleteButton);
 
             HBox gamePane = new HBox();
             gamePane.setPrefWidth(250);
