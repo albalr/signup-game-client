@@ -31,7 +31,7 @@ public class DeleteGameDialog {
         deleteGameAlert.showAndWait().ifPresent(response -> {
             if (response == ButtonType.OK) {
                 try {
-                    //gameController.deleteGame(game); // Call the controller to handle leaving the game
+                    gameController.deleteGame(game); // Call the controller to handle leaving the game
                     onLeaveGameComplete.run(); // Refresh the game list
                     showAlert("Success", "You have successfully left the game.");
                 } catch (Exception ex) {

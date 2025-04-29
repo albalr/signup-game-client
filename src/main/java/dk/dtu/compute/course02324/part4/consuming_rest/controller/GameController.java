@@ -32,4 +32,11 @@ public class GameController {
                 .retrieve()
                 .body(Game.class);
     }
+
+    public void deleteGame(Game game) {
+        apiService.getClient().delete()
+                .uri("/game/" + game.getUid())
+                .retrieve()
+                .body(Void.class);
+    }
 }

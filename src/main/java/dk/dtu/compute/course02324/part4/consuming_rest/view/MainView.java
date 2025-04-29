@@ -55,7 +55,7 @@ public class MainView {
         Menu fileMenu = new Menu("File");
 
         MenuItem signInItem = new MenuItem("Sign In");
-        signInItem.setOnAction(e -> new SignInDialog(userController).show());
+        signInItem.setOnAction(e -> new SignInDialog(userController, this::refreshGameList).show());
 
         MenuItem signUpItem = new MenuItem("Sign Up");
         signUpItem.setOnAction(e -> new SignUpDialog(userController).show());

@@ -15,10 +15,12 @@ import javafx.stage.Stage;
 
 public class SignInDialog {
     private final UserController userController;
+    private final Runnable onSignInComplete;
     private final Stage dialog;
 
-    public SignInDialog(UserController userController) {
+    public SignInDialog(UserController userController, Runnable onSignInComplete) {
         this.userController = userController;
+        this.onSignInComplete = onSignInComplete;
         this.dialog = new Stage();
         dialog.initModality(Modality.APPLICATION_MODAL);
         dialog.setTitle("Sign In");
@@ -53,6 +55,7 @@ public class SignInDialog {
 
             if (user != null) {
                 showAlert("Success", "Signed in as " + user.getName());
+                onSignInComplete.run();
                 dialog.close();
             } else {
                 showAlert("Error", "User not found");
