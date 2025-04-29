@@ -133,13 +133,13 @@ public class MainView {
         });
 
         Button leaveButton = new Button("Leave");
-        leaveButton.setDisable(userController.getCurrentUser() == null || !Objects.equals(userController.getCurrentUser().getName(), game.getOwner()));
+        leaveButton.setDisable(userController.getCurrentUser() == null || Objects.equals(userController.getCurrentUser().getName(), game.getOwner()));
         leaveButton.setOnAction(event -> {
             new LeaveGameDialog(gameController, game, this::refreshGameList).show();
         });
 
         Button deleteButton = new Button("Delete");
-        deleteButton.setDisable(userController.getCurrentUser() == null || Objects.equals(userController.getCurrentUser().getName(), game.getOwner()));
+        deleteButton.setDisable(userController.getCurrentUser() == null || !Objects.equals(userController.getCurrentUser().getName(), game.getOwner()));
         deleteButton.setOnAction(event -> {
             new DeleteGameDialog(gameController, game, this::refreshGameList).show();
         });
