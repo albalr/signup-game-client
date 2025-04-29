@@ -5,10 +5,7 @@ import dk.dtu.compute.course02324.part4.consuming_rest.controller.PlayerControll
 import dk.dtu.compute.course02324.part4.consuming_rest.controller.UserController;
 import dk.dtu.compute.course02324.part4.consuming_rest.model.Game;
 import dk.dtu.compute.course02324.part4.consuming_rest.controller.RestApiService;
-import dk.dtu.compute.course02324.part4.consuming_rest.view.dialogs.CreateGameDialog;
-import dk.dtu.compute.course02324.part4.consuming_rest.view.dialogs.GameSignUpDialog;
-import dk.dtu.compute.course02324.part4.consuming_rest.view.dialogs.SignInDialog;
-import dk.dtu.compute.course02324.part4.consuming_rest.view.dialogs.SignUpDialog;
+import dk.dtu.compute.course02324.part4.consuming_rest.view.dialogs.*;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.BorderPane;
@@ -18,6 +15,7 @@ import javafx.stage.Stage;
 import javafx.geometry.Insets;
 
 import java.util.List;
+import java.util.Objects;
 
 public class MainView {
     private final RestApiService apiService;
@@ -134,10 +132,22 @@ public class MainView {
             new GameSignUpDialog(playerController, game, this::refreshGameList).show();
         });
 
+        Button leaveButton = new Button("Leave");
+        leaveButton.setDisable(userController.getCurrentUser() == null || !Objects.equals(userController.getCurrentUser().getName(), game.getOwner()));
+        leaveButton.setOnAction(event -> {
+            new LeaveGameDialog(gameController, game, this::refreshGameList).show();
+        });
+
+        Button deleteButton = new Button("Delete");
+        deleteButton.setDisable(userController.getCurrentUser() == null || Objects.equals(userController.getCurrentUser().getName(), game.getOwner()));
+        deleteButton.setOnAction(event -> {
+            new DeleteGameDialog(gameController, game, this::refreshGameList).show();
+        });
+
         VBox infoBox = new VBox(5);
         infoBox.getChildren().addAll(nameLabel, playersLabel);
 
-        gameBox.getChildren().addAll(infoBox, signUpButton);
+        gameBox.getChildren().addAll(infoBox, signUpButton, leaveButton, deleteButton);
 
         return gameBox;
     }
