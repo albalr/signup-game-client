@@ -1,6 +1,7 @@
 package dk.dtu.compute.course02324.part4.consuming_rest.view.dialogs;
 
 import dk.dtu.compute.course02324.part4.consuming_rest.controller.GameController;
+import dk.dtu.compute.course02324.part4.consuming_rest.controller.UserController;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
@@ -11,11 +12,13 @@ import javafx.stage.Stage;
 
 public class CreateGameDialog {
     private final GameController gameController;
+    private final UserController userController;
     private final Runnable onGameCreated;
     private final Stage dialog;
 
-    public CreateGameDialog(GameController gameController, Runnable onGameCreated) {
+    public CreateGameDialog(GameController gameController, UserController userController, Runnable onGameCreated) {
         this.gameController = gameController;
+        this.userController = userController;
         this.onGameCreated = onGameCreated;
         this.dialog = new Stage();
         dialog.initModality(Modality.APPLICATION_MODAL);
@@ -67,7 +70,8 @@ public class CreateGameDialog {
             }
 
             try {
-                gameController.createGame(name, minPlayers, maxPlayers);
+                String owner = userController.getCurrentUser().getName();
+                gameController.createGame(name, minPlayers, maxPlayers, owner);
                 showAlert("Success", "Game created successfully");
                 onGameCreated.run();
                 dialog.close();

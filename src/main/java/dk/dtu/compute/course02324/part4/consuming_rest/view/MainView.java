@@ -87,7 +87,7 @@ public class MainView {
                 showAlert("Not Signed In", "Please sign in before creating a game.");
                 return;
             }
-            new CreateGameDialog(gameController, this::refreshGameList).show();
+            new CreateGameDialog(gameController, userController, this::refreshGameList).show();
         });
 
         gameListContainer = new VBox();

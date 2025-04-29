@@ -20,11 +20,12 @@ public class GameController {
                 .getGames();
     }
 
-    public Game createGame(String name, int minPlayers, int maxPlayers) {
+    public Game createGame(String name, int minPlayers, int maxPlayers, String owner) {
         Game game = new Game();
         game.setName(name);
         game.setMinPlayers(minPlayers);
         game.setMaxPlayers(maxPlayers);
+        game.setOwner(owner);
 
         return apiService.getClient().post()
                 .uri("/game")
