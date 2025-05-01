@@ -5,10 +5,7 @@ import dk.dtu.compute.course02324.part4.consuming_rest.controller.PlayerControll
 import dk.dtu.compute.course02324.part4.consuming_rest.controller.UserController;
 import dk.dtu.compute.course02324.part4.consuming_rest.model.Game;
 import dk.dtu.compute.course02324.part4.consuming_rest.controller.RestApiService;
-import dk.dtu.compute.course02324.part4.consuming_rest.view.dialogs.CreateGameDialog;
-import dk.dtu.compute.course02324.part4.consuming_rest.view.dialogs.GameSignUpDialog;
-import dk.dtu.compute.course02324.part4.consuming_rest.view.dialogs.SignInDialog;
-import dk.dtu.compute.course02324.part4.consuming_rest.view.dialogs.SignUpDialog;
+import dk.dtu.compute.course02324.part4.consuming_rest.view.dialogs.*;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.BorderPane;
@@ -38,7 +35,7 @@ public class MainView {
         BorderPane root = new BorderPane();
 
         // Build menu
-        MenuBar menuBar = createMenuBar();
+        MenuBar menuBar = createMenuBar(userController, gameController, playerController);
         root.setTop(menuBar);
 
         // Main content
@@ -53,7 +50,7 @@ public class MainView {
         primaryStage.show();
     }
 
-    private MenuBar createMenuBar() {
+    public static MenuBar createMenuBar(UserController userController, GameController gameController, PlayerController playerController) {
         Menu fileMenu = new Menu("File");
 
         MenuItem signInItem = new MenuItem("Sign In");
@@ -67,6 +64,18 @@ public class MainView {
             userController.signOut();
             showAlert("Signed Out", "You have been signed out.");
         });
+
+        MenuItem sogItem = new MenuItem("Show Online Games");
+        sogItem.setOnAction(e -> {
+            if (userController.getCurrentUser() == null) {
+                showAlert("Not Signed In", "Please sign in to view online games.");
+            } else {
+                new ShowOnlineGamesDialog(gameController).show();
+            }
+        });
+
+        fileMenu.getItems().add(sogItem);
+
 
         fileMenu.getItems().addAll(signInItem, signUpItem, signOutItem);
 
@@ -142,7 +151,7 @@ public class MainView {
         return gameBox;
     }
 
-    private void showAlert(String title, String message) {
+    private static void showAlert(String title, String message) {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
         alert.setTitle(title);
         alert.setHeaderText(null);

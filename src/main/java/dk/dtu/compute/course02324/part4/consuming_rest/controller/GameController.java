@@ -32,4 +32,13 @@ public class GameController {
                 .retrieve()
                 .body(Game.class);
     }
+
+    public List<Game> getOpenGames() {
+        Game[] games = apiService.getClient().get()
+                .uri("/games/opengames")
+                .retrieve()
+                .body(Game[].class);
+        return List.of(games);
+    }
+
 }

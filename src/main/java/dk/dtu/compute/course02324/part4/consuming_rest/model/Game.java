@@ -23,7 +23,14 @@ public class Game {
 
     private List<Player> players;
 
+    private String owner;
 
+    public String getOwner() {
+        return owner;
+    }
+    public void setOwner(String owner) {
+        this.owner = owner;
+    }
     public long getUid() {
         return uid;
     }
