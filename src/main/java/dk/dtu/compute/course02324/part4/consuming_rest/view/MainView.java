@@ -63,16 +63,25 @@ public class MainView {
 
         MenuItem signInItem = new MenuItem("Sign In");
         signInItem.setOnAction(e -> {
+            if (userController.getCurrentUser() != null) {
+                showAlert("Already Signed In", "You must sign out before signing in with a different account.");
+                return;
+            }
             new SignInDialog(userController, () -> {
                 updateUserStatus();
                 refreshGameList();
             }).show();
         });
 
+
         MenuItem signUpItem = new MenuItem("Sign Up");
         signUpItem.setOnAction(e -> {
+            if (userController.getCurrentUser() != null) {
+                showAlert("Already Signed In", "You must sign out before signing up with a new account.");
+                return;
+            }
             new SignUpDialog(userController, () -> {
-            updateUserStatus();
+                updateUserStatus();
                 refreshGameList();
             }).show();
         });
@@ -96,7 +105,7 @@ public class MainView {
                 showAlert("Error", "Please sign in to view available games");
                 return;
             }
-            new ShowOnlineGamesDialog(gameController).show();
+            new ShowOnlineGamesDialog(gameController, userController, playerController).show();
         });
 
         fileMenu.getItems().addAll(signInItem, signUpItem, signOutItem, new SeparatorMenuItem(), showOnlineGamesItem);
@@ -114,21 +123,6 @@ public class MainView {
 
         Label title = new Label("RoboRally Games");
 
-        Button createGameButton = new Button("Create Game");
-        createGameButton.setDisable(userController.getCurrentUser() == null);
-        createGameButton.setOnAction(e -> {
-            if (userController.getCurrentUser() == null) {
-                showAlert("Not Signed In", "Please sign in before creating a game.");
-                return;
-            }
-            new CreateGameDialog(gameController, userController, this::refreshGameList).show();
-        });
-
-        // update button state when user signs in/out
-        userStatusLabel.textProperty().addListener((observable, oldValue, newValue) -> {
-            createGameButton.setDisable(userController.getCurrentUser() == null);
-        });
-
         gameListContainer = new VBox();
         gameListContainer.setSpacing(10);
 
@@ -137,13 +131,17 @@ public class MainView {
         scrollPane.setFitToWidth(true);
         scrollPane.setPrefHeight(250);
 
-        content.getChildren().addAll(title, createGameButton, scrollPane);
+        content.getChildren().addAll(title, scrollPane);
 
         return content;
     }
 
     public void refreshGameList() {
         gameListContainer.getChildren().clear();
+
+        if (userController.getCurrentUser() == null) {
+            return;
+        }
 
         List<Game> games = gameController.getAllGames();
 
@@ -291,12 +289,12 @@ public class MainView {
                              (p.getUser() != null && p.getUser().getName() != null && 
                               p.getUser().getName().equals(game.getOwner())));
         }
-        
+
         if (!ownerInList && game.getOwner() != null) {
             Label ownerLabel = new Label("- " + game.getOwner() + " (Host)");
             playerListBox.getChildren().add(ownerLabel);
         }
-        
+
         // add buttons based on game status
         if (game.getStatus() == Game.GameStatus.SIGNUP) {
             buttonsBox.getChildren().addAll(signUpButton, leaveButton, deleteButton, startButton);
@@ -307,12 +305,12 @@ public class MainView {
             Button playButton = new Button("Play");
             playButton.setDisable(true); // Not implemented yet
             playButton.setTooltip(new Tooltip("Not implemented yet"));
-            
-            if (game.getStatus() == Game.GameStatus.ACTIVE && 
+
+            if (game.getStatus() == Game.GameStatus.ACTIVE &&
                 (playerController.isPlayerInGame(game, currentUser) || gameController.isUserHost(game, currentUser))) {
                 playButton.setDisable(false);
                 playButton.setTooltip(new Tooltip("Enter the game"));
-                
+
                 // Add event handler for Play button
                 playButton.setOnAction(event -> {
                     Alert launchDialog = new Alert(Alert.AlertType.INFORMATION);
@@ -322,7 +320,7 @@ public class MainView {
                     launchDialog.showAndWait();
                 });
             }
-            
+
             buttonsBox.getChildren().add(playButton);
             actionsAndPlayers.getChildren().addAll(buttonsBox, playerListBox);
             gameBox.getChildren().addAll(infoBox, actionsAndPlayers);

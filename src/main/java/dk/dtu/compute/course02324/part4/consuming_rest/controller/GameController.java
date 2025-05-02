@@ -79,10 +79,10 @@ public class GameController {
                 throw new IllegalStateException("Failed to create game: server returned null");
             }
             
-            apiService.getClient().post()
-                    .uri("/games/" + createdGame.getUid() + "/join?username=" + currentUser.getName())
-                    .retrieve()
-                    .toBodilessEntity();
+//            apiService.getClient().post()
+//                    .uri("/games/" + createdGame.getUid() + "/join?username=" + currentUser.getName())
+//                    .retrieve()
+//                    .toBodilessEntity();
             
             return getGame(createdGame.getUid()); // Get fresh game state
         } catch (RestClientException e) {
@@ -98,26 +98,6 @@ public class GameController {
                     .body(Game.class);
         } catch (RestClientException e) {
             throw new IllegalStateException("Failed to fetch game: " + e.getMessage());
-        }
-    }
-
-    public Game joinGame(Game game) {
-        validateCurrentUser();
-        try {
-            Map<String, Object> playerData = new HashMap<>(); // player info
-            playerData.put("name", currentUser.getName());
-            playerData.put("user", "/users/" + currentUser.getUid());
-            playerData.put("game", "/game/" + game.getUid());
-            
-            apiService.getClient().post()
-                    .uri("/player")
-                    .body(playerData)
-                    .retrieve()
-                    .toBodilessEntity();
-                    
-            return getGame(game.getUid());
-        } catch (RestClientException e) {
-            throw new IllegalStateException("Failed to join game: " + e.getMessage());
         }
     }
 

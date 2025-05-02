@@ -89,9 +89,7 @@ public class PlayerController {
     
     private boolean isUserInGame(Game game, User user) {
         if (game == null || user == null || game.getPlayers() == null) { return false; } // null checks
-        
-        if (user.getName() != null && user.getName().equals(game.getOwner())) { return true; } // is owner
-        
+
         if (game.getPlayers() != null) {
             for (dk.dtu.compute.course02324.part4.consuming_rest.model.Player player : game.getPlayers()) {
                 if (player.getUser() != null && player.getUser().getUid() == user.getUid()) { return true; } // check by player UID first
