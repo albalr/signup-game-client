@@ -70,13 +70,22 @@ public class CreateGameDialog {
             }
 
             try {
-                String owner = userController.getCurrentUser().getName();
-                gameController.createGame(name, minPlayers, maxPlayers, owner);
+                // Check if game name already exists
+                if (gameController.doesGameNameExist(name)) {
+                    showAlert("Error", "A game with this name already exists. Please choose a different name.");
+                    return;
+                }
+
+                gameController.createGame(name, minPlayers, maxPlayers);
                 showAlert("Success", "Game created successfully");
                 onGameCreated.run();
                 dialog.close();
             } catch (Exception ex) {
-                showAlert("Error", "Failed to create game: " + ex.getMessage());
+                String errorMessage = "Failed to create game";
+                if (ex.getMessage() != null) {
+                    errorMessage = ex.getMessage();
+                }
+                showAlert("Error", errorMessage);
             }
         });
 

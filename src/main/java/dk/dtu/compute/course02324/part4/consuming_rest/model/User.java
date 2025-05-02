@@ -11,11 +11,15 @@ public class User {
 
     private String name;
 
-    // TODO this class needs to be extended with references to Player and
-    //      the other way round (similar to the reference from Game to Player
-    //      and the other way round. -- done
 
     private List<Player> players;
+
+    public User() {}
+
+    // Jackson workaround: allow deserialization from a numeric user ID
+    public User(long uid) {
+        this.uid = uid;
+    }
 
     public long getUid() {
         return uid;

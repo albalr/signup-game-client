@@ -3,9 +3,17 @@ package dk.dtu.compute.course02324.part4.consuming_rest.model;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import java.util.List;
+import java.util.ArrayList;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Game {
+
+    public enum GameStatus {
+        INITIAL,
+        SIGNUP,
+        ACTIVE,
+        FINISHED
+    }
 
     private long uid;
 
@@ -15,16 +23,17 @@ public class Game {
 
     private int maxPlayers;
 
-    // TODO There could be more attributes here, kie
+    // TODO There could be more attributes here, like
     //      in which state is the sign up for the game, did
     //      the game started or finish (after the game started
     //      you might not want new players coming in etc.)
     //      See analogous classes in backend.
 
-    private List<Player> players;
+    private List<Player> players = new ArrayList<>();
 
     private String owner;
 
+    private GameStatus status;
 
     public long getUid() {
         return uid;
@@ -43,9 +52,11 @@ public class Game {
     }
 
     public List<Player> getPlayers() {
+        if (players == null) {
+            players = new ArrayList<>();
+        }
         return players;
     }
-
 
     public int getMinPlayers() {
         return minPlayers;
@@ -64,7 +75,7 @@ public class Game {
     }
 
     public void setPlayers(List<Player> players) {
-        this.players = players;
+        this.players = players != null ? players : new ArrayList<>();
     }
 
     public String getOwner() {
@@ -75,6 +86,14 @@ public class Game {
         this.owner = owner;
     }
 
+    public GameStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(GameStatus status) {
+        this.status = status;
+    }
+
     @Override
     public String toString() {
         return "Game{" +
@@ -82,6 +101,7 @@ public class Game {
                 ", name='" + name + '\'' +
                 ", minPlayers=" + minPlayers +
                 ", maxPlayers=" + maxPlayers +
+                ", status=" + status +
                 // ", players=" + players +
                 '}';
     }

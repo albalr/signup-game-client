@@ -2,30 +2,27 @@ package dk.dtu.compute.course02324.part4.consuming_rest.model;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonProperty;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Player {
     private int uid;
     private String name;
-    private Object user;
+    private User user;
     private Object game;
 
     // Default no-argument constructor for Jackson
     public Player() {
     }
 
-    // Constructor for creating new players
-    public Player(String name, Object user, Object game) {
+    public Player(String name, Object user, Object game) { // constructor
         this.name = name;
-        this.user = user;
+        this.user = user instanceof User ? (User) user : null;
         this.game = game;
     }
 
-    // Special constructor for handling numeric IDs - this is what fixes the error
     @JsonCreator
-    public static Player fromId(int id) {
-        Player player = new Player();
+    public static Player fromId(int id) { // special constructor for numeric IDs;
+        Player player = new Player();     // necessary for error
         player.uid = id;
         return player;
     }
@@ -46,11 +43,11 @@ public class Player {
         this.name = name;
     }
 
-    public Object getUser() {
+    public User getUser() {
         return user;
     }
 
-    public void setUser(Object user) {
+    public void setUser(User user) {
         this.user = user;
     }
 

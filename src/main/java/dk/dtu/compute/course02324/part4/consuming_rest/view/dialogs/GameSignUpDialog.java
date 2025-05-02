@@ -34,9 +34,11 @@ public class GameSignUpDialog {
 
         Label gameNameLabel = new Label("Game:");
         Label gameNameValue = new Label(game.getName());
-
+        
+        String currentUsername = playerController.getCurrentUsername();
+        
         Label playerNameLabel = new Label("Player Name:");
-        TextField playerNameField = new TextField();
+        TextField playerNameField = new TextField(currentUsername);
 
         Button signUpButton = new Button("Sign Up");
         Button cancelButton = new Button("Cancel");
@@ -64,7 +66,14 @@ public class GameSignUpDialog {
                 onSignUpComplete.run();
                 dialog.close();
             } catch (Exception ex) {
-                showAlert("Error", "Failed to sign up: " + ex.getMessage());
+                String errorMessage = ex.getMessage();
+                if (errorMessage != null && errorMessage.contains("already joined")) {
+                    showAlert("Already Joined", "You've already joined this game as a player");
+                    onSignUpComplete.run();
+                    dialog.close();
+                } else {
+                    showAlert("Error", "Failed to sign up for game: " + errorMessage);
+                }
             }
         });
 

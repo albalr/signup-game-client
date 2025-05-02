@@ -22,7 +22,7 @@ public class UserController {
                 .retrieve()
                 .body(new ParameterizedTypeReference<List<User>>() {});
 
-        if (users != null && !users.isEmpty()) {
+        if (users != null && !users.isEmpty()) { // check if user exists
             currentUser = users.get(0);
             return currentUser;
         }
@@ -34,7 +34,7 @@ public class UserController {
         User newUser = new User();
         newUser.setName(username);
 
-        currentUser = apiService.getClient().post()
+        currentUser = apiService.getClient().post() // post user data to the server
                 .uri("/users/signup")
                 .body(newUser)
                 .retrieve()

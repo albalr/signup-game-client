@@ -22,20 +22,20 @@ public class DeleteGameDialog {
         this.deleteGameAlert = new Alert(Alert.AlertType.CONFIRMATION);
         this.deleteGameAlert.initModality(Modality.APPLICATION_MODAL);
 
-        deleteGameAlert.setTitle("Leave Game");
-        deleteGameAlert.setHeaderText("Are you sure you want to leave the game: " + game.getName() + "?");
-        deleteGameAlert.setContentText("You will no longer be a participant in this game.");
+        deleteGameAlert.setTitle("Delete Game");
+        deleteGameAlert.setHeaderText("Are you sure you want to delete the game: " + game.getName() + "?");
+        deleteGameAlert.setContentText("This will remove the game and all its players. This action cannot be undone.");
     }
 
     public void show() {
         deleteGameAlert.showAndWait().ifPresent(response -> {
             if (response == ButtonType.OK) {
                 try {
-                    gameController.deleteGame(game); // Call the controller to handle leaving the game
-                    onLeaveGameComplete.run(); // Refresh the game list
-                    showAlert("Success", "You have successfully left the game.");
+                    gameController.deleteGame(game);
+                    onLeaveGameComplete.run();
+                    showAlert("Success", "You have successfully deleted the game.");
                 } catch (Exception ex) {
-                    showAlert("Error", "Failed to leave the game: " + ex.getMessage());
+                    showAlert("Error", "Failed to delete the game: " + ex.getMessage());
                 }
             }
         });

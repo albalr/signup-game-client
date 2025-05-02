@@ -15,10 +15,12 @@ import javafx.stage.Stage;
 
 public class SignUpDialog {
     private final UserController userController;
+    private final Runnable onSignUpComplete;
     private final Stage dialog;
 
-    public SignUpDialog(UserController userController) {
+    public SignUpDialog(UserController userController, Runnable onSignUpComplete) {
         this.userController = userController;
+        this.onSignUpComplete = onSignUpComplete;
         this.dialog = new Stage();
         dialog.initModality(Modality.APPLICATION_MODAL);
         dialog.setTitle("Sign Up");
@@ -44,7 +46,7 @@ public class SignUpDialog {
         signUpButton.setOnAction(e -> {
             String username = usernameField.getText().trim();
 
-            if (username.isEmpty()) {
+            if (username.isEmpty()) { // empty username
                 showAlert("Error", "Username cannot be empty");
                 return;
             }
@@ -52,9 +54,10 @@ public class SignUpDialog {
             try {
                 User user = userController.signUp(username);
                 showAlert("Success", "Signed up as " + user.getName());
+                onSignUpComplete.run();
                 dialog.close();
             } catch (Exception ex) {
-                showAlert("Error", "Failed to sign up: " + ex.getMessage());
+                showAlert("Error", "There is already a user with this name!");
             }
         });
 
