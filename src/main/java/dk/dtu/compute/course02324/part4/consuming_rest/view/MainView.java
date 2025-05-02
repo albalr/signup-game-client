@@ -106,6 +106,7 @@ public class MainView {
                 return;
             }
             new ShowOnlineGamesDialog(gameController, userController, playerController).show();
+            refreshGameList();
         });
 
         fileMenu.getItems().addAll(signInItem, signUpItem, signOutItem, new SeparatorMenuItem(), showOnlineGamesItem);
