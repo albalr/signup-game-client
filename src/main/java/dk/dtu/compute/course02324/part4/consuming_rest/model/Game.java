@@ -1,10 +1,16 @@
 package dk.dtu.compute.course02324.part4.consuming_rest.model;
 
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
 import java.util.List;
 import java.util.ArrayList;
 
+@JsonIdentityInfo(
+        scope = Game.class,
+        generator = ObjectIdGenerators.PropertyGenerator.class,
+        property = "uid")
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Game {
 

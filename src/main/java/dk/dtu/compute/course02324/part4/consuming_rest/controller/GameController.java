@@ -78,12 +78,7 @@ public class GameController {
             if (createdGame == null) {
                 throw new IllegalStateException("Failed to create game: server returned null");
             }
-            
-//            apiService.getClient().post()
-//                    .uri("/games/" + createdGame.getUid() + "/join?username=" + currentUser.getName())
-//                    .retrieve()
-//                    .toBodilessEntity();
-            
+
             return getGame(createdGame.getUid()); // Get fresh game state
         } catch (RestClientException e) {
             throw new IllegalStateException("Failed to create game: " + e.getMessage());

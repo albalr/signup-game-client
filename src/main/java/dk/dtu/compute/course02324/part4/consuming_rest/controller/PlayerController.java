@@ -53,7 +53,7 @@ public class PlayerController {
                         
                 if (updatedGame != null && updatedGame.getPlayers() != null) {
                     boolean userFound = false;             // check if user is in player list
-                    for (dk.dtu.compute.course02324.part4.consuming_rest.model.Player player : updatedGame.getPlayers()) {
+                    for (Player player : updatedGame.getPlayers()) {
                         if ((player.getUser() != null && player.getUser().getUid() == currentUser.getUid()) ||
                             (player.getName() != null && player.getName().equals(playerName))) {
                             userFound = true;
@@ -91,7 +91,7 @@ public class PlayerController {
         if (game == null || user == null || game.getPlayers() == null) { return false; } // null checks
 
         if (game.getPlayers() != null) {
-            for (dk.dtu.compute.course02324.part4.consuming_rest.model.Player player : game.getPlayers()) {
+            for (Player player : game.getPlayers()) {
                 if (player.getUser() != null && player.getUser().getUid() == user.getUid()) { return true; } // check by player UID first
                 if (player.getUser() != null && player.getUser().getUid() == user.getUid()) { return true; } // check by name
                 

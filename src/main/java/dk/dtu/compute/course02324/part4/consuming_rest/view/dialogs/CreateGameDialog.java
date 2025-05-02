@@ -3,7 +3,6 @@ package dk.dtu.compute.course02324.part4.consuming_rest.view.dialogs;
 import dk.dtu.compute.course02324.part4.consuming_rest.controller.GameController;
 import dk.dtu.compute.course02324.part4.consuming_rest.controller.PlayerController;
 import dk.dtu.compute.course02324.part4.consuming_rest.controller.UserController;
-import dk.dtu.compute.course02324.part4.consuming_rest.model.Game;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
@@ -15,9 +14,7 @@ import javafx.stage.Stage;
 public class CreateGameDialog {
     private final GameController gameController;
     private final UserController userController;
-
     private final PlayerController playerController;
-
     private final Runnable onGameCreated;
     private final Stage dialog;
 
@@ -83,8 +80,7 @@ public class CreateGameDialog {
                     return;
                 }
 
-                Game newGame = gameController.createGame(name, minPlayers, maxPlayers);
-                playerController.signUpForGame(newGame, userController.getCurrentUser().getName());
+                gameController.createGame(name, minPlayers, maxPlayers);
                 showAlert("Success", "Game created successfully");
                 onGameCreated.run();
                 dialog.close();

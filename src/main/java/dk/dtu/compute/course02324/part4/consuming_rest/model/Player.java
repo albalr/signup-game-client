@@ -1,14 +1,20 @@
 package dk.dtu.compute.course02324.part4.consuming_rest.model;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
+@JsonIdentityInfo(
+        scope = Player.class,
+        generator = ObjectIdGenerators.PropertyGenerator.class,
+        property = "uid")
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Player {
     private int uid;
     private String name;
     private User user;
-    private Object game;
+    private Game game;
 
     // Default no-argument constructor for Jackson
     public Player() {
@@ -17,7 +23,7 @@ public class Player {
     public Player(String name, Object user, Object game) { // constructor
         this.name = name;
         this.user = user instanceof User ? (User) user : null;
-        this.game = game;
+        this.game = game instanceof Game ? (Game) game : null;
     }
 
     @JsonCreator
@@ -55,7 +61,7 @@ public class Player {
         return game;
     }
 
-    public void setGame(Object game) {
+    public void setGame(Game game) {
         this.game = game;
     }
 
