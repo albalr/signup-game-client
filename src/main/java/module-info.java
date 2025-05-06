@@ -14,8 +14,6 @@ module rest_client {
     exports dk.dtu.compute.course02324.part4.consuming_rest;
 
     exports dk.dtu.compute.course02324.part4.consuming_rest.model;
-    exports dk.dtu.compute.course02324.part4.consuming_rest.wrappers;
-
 
 
     /*
