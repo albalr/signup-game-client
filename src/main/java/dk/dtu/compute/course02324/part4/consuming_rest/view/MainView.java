@@ -2,22 +2,23 @@ package dk.dtu.compute.course02324.part4.consuming_rest.view;
 
 import dk.dtu.compute.course02324.part4.consuming_rest.controller.GameController;
 import dk.dtu.compute.course02324.part4.consuming_rest.controller.PlayerController;
+import dk.dtu.compute.course02324.part4.consuming_rest.controller.RestApiService;
 import dk.dtu.compute.course02324.part4.consuming_rest.controller.UserController;
 import dk.dtu.compute.course02324.part4.consuming_rest.model.Game;
 import dk.dtu.compute.course02324.part4.consuming_rest.model.Player;
 import dk.dtu.compute.course02324.part4.consuming_rest.model.User;
-import dk.dtu.compute.course02324.part4.consuming_rest.controller.RestApiService;
-import dk.dtu.compute.course02324.part4.consuming_rest.view.dialogs.*;
+import dk.dtu.compute.course02324.part4.consuming_rest.view.dialogs.ShowOnlineGamesDialog;
+import dk.dtu.compute.course02324.part4.consuming_rest.view.dialogs.SignInDialog;
+import dk.dtu.compute.course02324.part4.consuming_rest.view.dialogs.SignUpDialog;
+import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
-import javafx.geometry.Insets;
 
 import java.util.List;
-import java.util.Objects;
 
 public class MainView {
     private final RestApiService apiService;
@@ -180,81 +181,6 @@ public class MainView {
 
         Label joinStatusLabel = new Label(joinStatus);
 
-        Button signUpButton = new Button("Sign Up");
-        signUpButton.setDisable(game.getStatus() != Game.GameStatus.SIGNUP || 
-                              userController.getCurrentUser() == null ||
-                              playerController.isPlayerInGame(game, userController.getCurrentUser()));
-        signUpButton.setOnAction(event -> {
-            if (userController.getCurrentUser() == null) {
-                showAlert("Not Signed In", "Please sign in before signing up for a game.");
-                return;
-            }
-            new GameSignUpDialog(playerController, game, this::refreshGameList).show();
-        });
-
-        Button leaveButton = new Button("Leave");
-        leaveButton.setDisable(userController.getCurrentUser() == null || 
-                             game.getStatus() != Game.GameStatus.SIGNUP ||
-                             !playerController.isPlayerInGame(game, userController.getCurrentUser()) ||
-                             (userController.getCurrentUser() != null && 
-                              Objects.equals(userController.getCurrentUser().getName(), game.getOwner())));
-        leaveButton.setOnAction(event -> {
-            new LeaveGameDialog(gameController, game, this::refreshGameList, userController).show();
-        });
-
-        Button deleteButton = new Button("Delete");
-        deleteButton.setDisable(userController.getCurrentUser() == null || 
-                              !Objects.equals(userController.getCurrentUser().getName(), game.getOwner()) ||
-                              game.getStatus() != Game.GameStatus.SIGNUP);
-        deleteButton.setOnAction(event -> {
-            new DeleteGameDialog(gameController, game, this::refreshGameList).show();
-        });
-
-        Button startButton = new Button("Start Game");
-        startButton.setDisable(!gameController.canStartGame(game));
-        
-        // tooltip based on button state
-        if (startButton.isDisabled()) {
-            if (!gameController.isCurrentUserHost(game)) {
-                startButton.setTooltip(new Tooltip("Only the host can start the game"));
-            } else {
-                startButton.setTooltip(new Tooltip("Need more players to start"));
-            }
-        } else {
-            startButton.setTooltip(new Tooltip("Click to start the game"));
-        }
-
-        startButton.setOnAction(event -> {
-            try {
-                gameController.startGame(game);
-                showAlert("Success", "Game started successfully!");
-                
-                // short delay for server to process. Fixes a lot of bugs
-                try {
-                    Thread.sleep(400);
-                } catch (InterruptedException e) {
-                    Thread.currentThread().interrupt();
-                }
-                
-                refreshGameList();
-            } catch (Exception ex) {
-                String errorMessage = ex.getMessage();
-                
-                // if it's a custom error, use it directly
-                if (errorMessage != null && 
-                    (errorMessage.contains("at least one other player") || 
-                     errorMessage.contains("You cannot start"))) {
-                    Alert alert = new Alert(Alert.AlertType.WARNING);
-                    alert.setTitle("Cannot Start Game");
-                    alert.setHeaderText("Not enough players");
-                    alert.setContentText(errorMessage);
-                    alert.showAndWait();
-                } else {
-                    showAlert("Error", "Failed to start game: " + errorMessage);
-                }
-            }
-        });
-
         VBox infoBox = new VBox(5);
         infoBox.getChildren().addAll(nameLabel, playersLabel, statusLabel, hostLabel, joinStatusLabel);
 
@@ -298,7 +224,6 @@ public class MainView {
 
         // add buttons based on game status
         if (game.getStatus() == Game.GameStatus.SIGNUP) {
-            buttonsBox.getChildren().addAll(signUpButton, leaveButton, deleteButton, startButton);
             actionsAndPlayers.getChildren().addAll(buttonsBox, playerListBox);
             gameBox.getChildren().addAll(infoBox, actionsAndPlayers);
         } else {
