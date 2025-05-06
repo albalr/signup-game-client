@@ -1,9 +1,4 @@
 # RoboRally Game Client
-
-A Java-based client application for the RoboRally game, implementing a Model-View-Controller (MVC) architecture.
-
-## Project Structure
-
 ```
 src/
 ├── main/
@@ -35,24 +30,18 @@ src/
     └── java/
 ```
 
-## Architecture Overview
+TUTORIAL: 
 
-The project follows the Model-View-Controller (MVC) architectural pattern:
+When the app is launched, no information about the games is shown. When the user either signs up and signs in, the main menu shows all the registered games in the program (both, the ACTIVE ones and the SIGNUP ones) with all the information for every game. Only when the user goes to the SOG screen, the action buttons on each games appear to be able to Join, Leave, Start and Delete a game. 
 
-- **Model**: Contains the core data structures
-  - `Game.java`: Represents game state and logic
-  - `User.java`: Handles user information
-  - `Player.java`: Manages player-specific data
+For the backend, we followed the pre-existing architecture, though removed the HAL wrapper classed and used ordinary json deserialization via spring.
+For the frontend, we have chosen to implement the Model-View-Controller (MVC) architectural pattern. Models include the core game structure; controller the business logic and API interactions; and view handles UI. If the project grew in size, you should separate the API calls into a separate /api/ folder.
 
-- **Controller**: Manages business logic and API interactions
-  - `UserController.java`: Handles user-related operations
-  - `GameController.java`: Manages game operations
-  - `PlayerController.java`: Controls player actions
-  - `RestApiService.java`: Handles REST API communication
+As for features, we have successfully added all necessary features, plus a few of our own flurishes, including:
+- Sign Up / Sign In / Sign Out
+- Launching games, e.g. Create, Join, Leave, Delete, Start.
+- Game state functionality (ACTIVE, SIGNUP etc)
+- Show Online Games (abbr. SOG)
+- Logs of dialogs for signing up, signing in, leaving game etc.
 
-- **View**: Implements the user interface
-  - `MainView.java`: Primary application window
-  - `dialogs/`: Contains various dialog boxes for user interactions
-    - Authentication: `SignInDialog.java`, `SignUpDialog.java`
-    - Game Management: `CreateGameDialog.java`, `DeleteGameDialog.java`, `GameSignUpDialog.java`
-    - Game Interaction: `ShowOnlineGamesDialog.java`, `LeaveGameDialog.java` 
+As for shortcomings, one should probably do better error handling. Also, one could do proper syncing; we have a manual sleep(200ms) after starting a game. Furthermore, we haven't added functionality for actually starting a RoboRally game, but that is outside the scope of this course.
